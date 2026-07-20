@@ -37,7 +37,7 @@ export default function Login() {
             <span className="text-white font-display font-bold text-2xl">EC</span>
           </div>
           <h1 className="text-2xl font-display font-bold text-gray-900">Admin Login</h1>
-          <p className="text-gray-500 text-sm mt-1">Elite Cricket Academy Management</p>
+          <p className="text-gray-500 text-sm mt-1">Young Warriros Cricket Club Management</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -85,9 +85,6 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-400">Demo credentials: <strong>admin</strong> / <strong>admin123</strong></p>
-        </div>
 
         <div className="mt-4 text-center">
           <Link to="/" className="text-cricket-green text-sm hover:underline">← Back to Website</Link>
