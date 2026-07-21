@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Lock, User, AlertCircle } from 'lucide-react';
-import { auth } from '@/lib/storage';
 import logoImg from '@/assets/academy-logo.jpg';
+
+function getAdminPassword(): string {
+  try {
+    const v = localStorage.getItem('ywcc_credentials');
+    return v ? JSON.parse(v).password : 'admin123';
+  } catch { return 'admin123'; }
+}
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -17,25 +23,27 @@ export default function Login() {
     setLoading(true);
     setError('');
     setTimeout(() => {
-      if (auth.login(username, password)) {
+      const correctPassword = getAdminPassword();
+      if (username === 'admin' && password === correctPassword) {
+        localStorage.setItem('eca_admin_token', 'logged_in');
         navigate('/admin');
       } else {
-        setError('Invalid credentials. Use admin / admin123');
+        setError('Invalid username or password');
       }
       setLoading(false);
     }, 600);
   };
 
   return (
-    <div className="min-h-screen bg-cricket-dark flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="absolute inset-0">
         <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=1400&h=900&fit=crop" alt="bg" className="w-full h-full object-cover opacity-10" />
       </div>
       <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src={logoImg} alt="Young Warriors Cricket Club" className="w-20 h-20 rounded-full object-cover border-4 border-cricket-green shadow-lg mx-auto mb-4" />
-          <h1 className="text-2xl font-display font-bold text-gray-900">Admin Login</h1>
+          <img src={logoImg} alt="Young Warriors Cricket Club" className="w-20 h-20 rounded-full object-cover border-4 border-blue-600 shadow-lg mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
           <p className="text-gray-500 text-sm mt-1">Young Warriors Cricket Club Management</p>
         </div>
 
@@ -75,7 +83,7 @@ export default function Login() {
           {error && (
             <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-sm">
               <AlertCircle size={16} />
-              Incorrect 
+              {error}
             </div>
           )}
 
@@ -84,9 +92,10 @@ export default function Login() {
           </button>
         </form>
 
+        <p className="text-center text-xs text-gray-400 mt-4">Default: admin / admin123</p>
 
         <div className="mt-4 text-center">
-          <Link to="/" className="text-cricket-green text-sm hover:underline">← Back to Website</Link>
+          <Link to="/" className="text-blue-600 text-sm hover:underline">← Back to Website</Link>
         </div>
       </div>
     </div>
