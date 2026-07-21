@@ -31,6 +31,7 @@ export default function EditPlayer() {
           status: p.status, position: p.position, battingStyle: p.battingStyle,
           bowlingStyle: p.bowlingStyle, jerseyNumber: p.jerseyNumber,
           emergencyContact: p.emergencyContact, medicalNotes: p.medicalNotes || '',
+          badge: p.badge || '',
         });
         if (p.photo) setPhotoPreview(p.photo);
       }
@@ -76,7 +77,13 @@ export default function EditPlayer() {
       const { data: urlData } = supabase.storage.from('player-photos').getPublicUrl(uploadData.path);
       photoUrl = urlData.publicUrl;
     }
-    await db.players.update(id, { ...form, age: parseInt(form.age) || 0, status: form.status as Player['status'], photo: photoUrl });
+    await db.players.update(id, {
+      ...form,
+      age: parseInt(form.age) || 0,
+      status: form.status as Player['status'],
+      photo: photoUrl,
+      badge: (form.badge || null) as Player['badge'],
+    });
     toast.success('Player updated successfully!');
     navigate(`/admin/players/${id}`);
   };
@@ -184,6 +191,29 @@ export default function EditPlayer() {
             <div><label className="form-label">Guardian Name</label><input name="guardianName" value={form.guardianName || ''} onChange={handleChange} className="form-input" /></div>
             <div><label className="form-label">Guardian Phone</label><input name="guardianPhone" value={form.guardianPhone || ''} onChange={handleChange} className="form-input" /></div>
             <div className="sm:col-span-2"><label className="form-label">Medical Notes</label><textarea name="medicalNotes" rows={3} value={form.medicalNotes || ''} onChange={handleChange} className="form-input resize-none" /></div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 className="font-bold text-gray-900 mb-2 text-lg">Verification Badge</h2>
+          <p className="text-sm text-gray-500 mb-4">Assign a special badge to recognize this player's status.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {(['', 'verified', 'elite', 'champion'] as const).map(b => (
+              <button
+                key={b}
+                type="button"
+                onClick={() => setForm({ ...form, badge: b })}
+                className={`p-3 rounded-xl border-2 text-center transition-all ${
+                  (form.badge || '') === b
+                    ? b === '' ? 'border-gray-400 bg-gray-100' : b === 'verified' ? 'border-blue-500 bg-blue-50' : b === 'elite' ? 'border-gray-900 bg-gray-900 text-white' : 'border-green-600 bg-green-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div className="text-xl mb-1">{b === '' ? '—' : b === 'verified' ? '✓' : b === 'elite' ? '★' : '⚡'}</div>
+                <div className="text-xs font-semibold">{b === '' ? 'No Badge' : b === 'verified' ? 'Verified' : b === 'elite' ? 'Elite' : 'Champion'}</div>
+                {b !== '' && <div className="text-xs opacity-60 mt-0.5">{b === 'verified' ? 'Blue' : b === 'elite' ? 'Black/Gold' : 'Green'}</div>}
+              </button>
+            ))}
           </div>
         </div>
 

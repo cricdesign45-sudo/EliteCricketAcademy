@@ -50,8 +50,9 @@ export default function Navbar() {
 
           {/* CTA */}
           <div className="hidden lg:flex items-center gap-3">
+            <Link to="/player-login" className="text-gray-300 hover:text-white text-sm border border-white/20 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">Player Portal</Link>
             <Link to="/register" className="btn-secondary text-xs px-4 py-2">Enroll Now</Link>
-            <Link to="/login" className="text-gray-300 hover:text-white text-sm">Admin Login</Link>
+            <Link to="/login" className="text-gray-300 hover:text-white text-sm">Admin</Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -75,9 +76,10 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <div className="flex gap-3 px-4 pt-3 border-t border-white/10 mt-2">
+            <div className="flex flex-wrap gap-3 px-4 pt-3 border-t border-white/10 mt-2">
+              <Link to="/player-login" className="text-amber-400 text-sm pt-1 font-medium" onClick={() => setOpen(false)}>Player Portal</Link>
               <Link to="/register" className="btn-secondary text-xs" onClick={() => setOpen(false)}>Enroll Now</Link>
-              <Link to="/login" className="text-gray-300 text-sm pt-1" onClick={() => setOpen(false)}>Admin Login</Link>
+              <Link to="/login" className="text-gray-300 text-sm pt-1" onClick={() => setOpen(false)}>Admin</Link>
             </div>
           </div>
         )}

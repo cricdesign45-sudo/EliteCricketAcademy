@@ -19,6 +19,7 @@ export interface Player {
   registrationNumber: string;
   emergencyContact: string;
   medicalNotes?: string;
+  badge?: 'verified' | 'elite' | 'champion' | null;
 }
 
 export interface Coach {

@@ -18,6 +18,8 @@ import Schedule from '@/pages/Schedule';
 import Contact from '@/pages/Contact';
 import Register from '@/pages/Register';
 import Login from '@/pages/Login';
+import PlayerLogin from '@/pages/PlayerLogin';
+import PlayerDashboard from '@/pages/PlayerDashboard';
 import NotFound from '@/pages/NotFound';
 
 // Admin Pages
@@ -75,6 +77,8 @@ export default function App() {
 
         {/* Auth */}
         <Route path="/login" element={<Login />} />
+        <Route path="/player-login" element={<PlayerLogin />} />
+        <Route path="/player" element={<PlayerDashboard />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>

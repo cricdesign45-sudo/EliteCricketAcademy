@@ -35,6 +35,7 @@ function toPlayer(row: Record<string, unknown>): Player {
     registrationNumber: (row.registration_number as string) || '',
     emergencyContact: (row.emergency_contact as string) || '',
     medicalNotes: row.medical_notes as string | undefined,
+    badge: (row.badge as Player['badge']) || null,
   };
 }
 
@@ -58,6 +59,7 @@ function fromPlayer(p: Omit<Player, 'id' | 'registrationNumber'>) {
     jersey_number: p.jerseyNumber || null,
     emergency_contact: p.emergencyContact || null,
     medical_notes: p.medicalNotes || null,
+    badge: (p as Player).badge || null,
   };
 }
 
@@ -310,6 +312,7 @@ export const db = {
       if (data.jerseyNumber !== undefined) mapped.jersey_number = data.jerseyNumber;
       if (data.emergencyContact !== undefined) mapped.emergency_contact = data.emergencyContact;
       if (data.medicalNotes !== undefined) mapped.medical_notes = data.medicalNotes;
+      if (data.badge !== undefined) mapped.badge = data.badge;
       mapped.updated_at = new Date().toISOString();
       const { error } = await supabase.from('players').update(mapped).eq('id', id);
       if (error) throw error;

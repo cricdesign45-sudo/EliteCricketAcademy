@@ -95,14 +95,19 @@ export default function PlayerList() {
                     <td className="table-td">
                       <div className="flex items-center gap-3">
                         {player.photo ? (
-                          <img src={player.photo} alt={player.name} className="w-9 h-9 rounded-full object-cover border-2 border-cricket-green flex-shrink-0" />
+                          <img src={player.photo} alt={player.name} className="w-9 h-9 rounded-full object-cover border-2 border-gray-200 flex-shrink-0" />
                         ) : (
-                          <div className="w-9 h-9 bg-cricket-green rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                          <div className="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                             {player.name.charAt(0)}
                           </div>
                         )}
                         <div>
-                          <p className="font-semibold text-gray-900">{player.name}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-semibold text-gray-900">{player.name}</p>
+                            {player.badge === 'verified' && <span title="Verified" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-500 text-white text-[9px] font-bold">✓</span>}
+                            {player.badge === 'elite' && <span title="Elite" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-900 text-yellow-400 text-[9px] font-bold">★</span>}
+                            {player.badge === 'champion' && <span title="Champion" className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-green-600 text-white text-[9px] font-bold">⚡</span>}
+                          </div>
                           <p className="text-xs text-gray-500">{player.phone}</p>
                         </div>
                       </div>

@@ -59,15 +59,22 @@ export default function PlayerDetail() {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center">
           {player.photo ? (
-            <img src={player.photo} alt={player.name} className="w-20 h-20 rounded-full object-cover border-4 border-cricket-green shadow mx-auto mb-4" />
+            <img src={player.photo} alt={player.name} className="w-20 h-20 rounded-full object-cover border-4 border-gray-200 shadow mx-auto mb-4" />
           ) : (
-            <div className="w-20 h-20 bg-cricket-green rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4">
+            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4">
               {player.name.charAt(0)}
             </div>
           )}
           <h2 className="text-xl font-bold text-gray-900">{player.name}</h2>
           <p className="text-gray-500 text-sm">{player.position}</p>
           <span className={`mt-2 inline-block ${player.status === 'active' ? 'badge-green' : player.status === 'suspended' ? 'badge-red' : 'badge-yellow'}`}>{player.status}</span>
+          {player.badge && (
+            <div className="mt-3">
+              {player.badge === 'verified' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500 text-white ring-2 ring-blue-300">✓ Verified Player</span>}
+              {player.badge === 'elite' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-900 text-yellow-400 ring-2 ring-gray-400">★ Elite Player</span>}
+              {player.badge === 'champion' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-600 text-white ring-2 ring-green-300">⚡ Academy Champion</span>}
+            </div>
+          )}
           <div className="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-gray-100">
             <div className="text-center"><p className="text-lg font-bold text-cricket-green">#{player.jerseyNumber}</p><p className="text-xs text-gray-500">Jersey</p></div>
             <div className="text-center"><p className="text-lg font-bold text-blue-600">{attendancePct}%</p><p className="text-xs text-gray-500">Attendance</p></div>
