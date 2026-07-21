@@ -7,13 +7,13 @@ import type { WebsiteContent } from '@/types';
 type AboutContent = WebsiteContent['about'];
 
 const defaultAbout: AboutContent = {
-  title: 'About Elite Cricket Academy',
-  content: 'Founded in 2010, Elite Cricket Academy has grown to become one of the premier cricket training institutes in the country.',
+  title: 'About Young Warriors Cricket Club',
+  content: 'Founded in 2025, Young Wariors Cricket Club has grown to become one of the premier cricket training institutes in the country.',
   vision: 'To be the leading cricket development institution producing world-class cricketers.',
   mission: 'To provide professional cricket training that transforms passionate players into champions.',
   values: ['Excellence', 'Discipline', 'Teamwork', 'Integrity', 'Innovation'],
-  foundedYear: '2010',
-  founderName: 'Mr. Vikram Rajput',
+  foundedYear: '2026',
+  founderName: 'Mr. Chandraknt Mahto',
 };
 
 export default function About() {
@@ -26,9 +26,7 @@ export default function About() {
   }, []);
 
   const team = [
-    { name: about.founderName || 'Mr. Vikram Rajput', role: 'Founder & Director', desc: 'Former national-level cricketer with a vision to create world-class cricket talent.', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&faces=true' },
-    { name: 'Mahendra Singh', role: 'Head Coach – Batting', desc: 'NCA Level 3 certified coach with 15 years of experience training state and national players.', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&faces=true' },
-    { name: 'Suresh Yadav', role: 'Bowling Coach', desc: 'Specialist fast bowling coach with expertise in swing and seam bowling techniques.', img: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=300&h=300&fit=crop' },
+    { name: about.founderName || 'Mr. Chandrakant Mahto', role: 'Founder & Director', desc: 'cricketer with a vision to create world-class cricket talent.', img: 'assetssrc/assets/Training under the guidance of Coach Chandrakant Mahto 🏏Proud Bowling Coach of Young Warriors .webp }
   ];
 
   return (
