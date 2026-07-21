@@ -83,7 +83,7 @@ export default function Login() {
           {error && (
             <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-sm">
               <AlertCircle size={16} />
-              {error}
+              Incorrect 
             </div>
           )}
 
@@ -92,7 +92,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-xs text-gray-400 mt-4">Default: admin / admin123</p>
+        
 
         <div className="mt-4 text-center">
           <Link to="/" className="text-blue-600 text-sm hover:underline">← Back to Website</Link>
