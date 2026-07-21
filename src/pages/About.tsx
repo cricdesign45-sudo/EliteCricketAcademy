@@ -71,7 +71,7 @@ export default function About() {
       <section className="py-20 cricket-gradient">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
-            {[['Founded', about.foundedYear], ['Players Trained', '500+'], ['State Champions', '12'], ['National Players', '35+']].map(([label, value]) => (
+            {[['Founded', about.foundedYear], ['Players Trained', '50+']].map(([label, value]) => (
               <div key={label}>
                 <div className="text-4xl font-display font-bold text-amber-400">{value}</div>
                 <div className="text-green-200 text-sm mt-2">{label}</div>
