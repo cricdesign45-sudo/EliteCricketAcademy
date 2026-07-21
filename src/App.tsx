@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { Analytics } from '@vercel/analytics/react';
 
 // Layouts
 import PublicLayout from '@/components/layout/PublicLayout';
@@ -60,6 +61,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-right" richColors />
+      <Analytics />
       <Routes>
         {/* Public Routes */}
         <Route element={<PublicLayout />}>
