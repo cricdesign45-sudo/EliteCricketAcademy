@@ -49,6 +49,7 @@ export interface Program {
   coach: string;
   status: 'active' | 'inactive';
   level: 'beginner' | 'intermediate' | 'advanced';
+  photo?: string;
 }
 
 export interface Fee {

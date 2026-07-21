@@ -108,6 +108,7 @@ function toProgram(row: Record<string, unknown>): Program {
     coach: (row.coach as string) || '',
     status: row.status as Program['status'],
     level: row.level as Program['level'],
+    photo: row.photo as string | undefined,
   };
 }
 
@@ -124,6 +125,7 @@ function fromProgram(p: Omit<Program, 'id'>) {
     coach: p.coach || null,
     status: p.status,
     level: p.level,
+    photo: p.photo || null,
   };
 }
 
@@ -379,6 +381,7 @@ export const db = {
       if (data.coach !== undefined) mapped.coach = data.coach;
       if (data.status !== undefined) mapped.status = data.status;
       if (data.level !== undefined) mapped.level = data.level;
+      if (data.photo !== undefined) mapped.photo = data.photo;
       const { error } = await supabase.from('programs').update(mapped).eq('id', id);
       if (error) throw error;
     },

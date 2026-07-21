@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Pencil, Trash2, Phone, Mail } from 'lucide-react';
+import { Plus, Pencil, Trash2, Phone, Mail, User } from 'lucide-react';
 import { db } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -34,35 +34,69 @@ export default function CoachManagement() {
           <h1 className="page-title">Coach Management</h1>
           <p className="text-gray-500 text-sm">{coaches.length} coaches registered</p>
         </div>
-        <Link to="/admin/coaches/add" className="btn-primary flex items-center gap-2"><Plus size={16} /> Add Coach</Link>
+        <Link to="/admin/coaches/add" className="btn-primary flex items-center gap-2">
+          <Plus size={16} /> Add Coach
+        </Link>
       </div>
 
       {loading ? (
         <div className="text-center py-12 text-gray-400">Loading coaches…</div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {coaches.map(coach => (
             <div key={coach.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-              <div className="bg-gradient-to-r from-cricket-green to-cricket-green-dark p-6 text-white text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-3">
-                  {coach.name.charAt(0)}
+              {/* Photo / Avatar Header */}
+              <div className="relative h-32 bg-gradient-to-br from-gray-700 to-gray-900 flex items-end p-4">
+                {coach.photo ? (
+                  <img src={coach.photo} alt={coach.name} className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                ) : null}
+                <div className="relative flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-xl border-2 border-white/30 overflow-hidden flex-shrink-0 bg-gray-600">
+                    {coach.photo ? (
+                      <img src={coach.photo} alt={coach.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User size={24} className="text-white/60" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-base leading-tight">{coach.name}</h3>
+                    <p className="text-gray-300 text-xs">{coach.specialization} Coach</p>
+                    <span className={`mt-1 inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold ${coach.status === 'active' ? 'bg-green-500/30 text-green-200' : 'bg-red-500/30 text-red-200'}`}>
+                      {coach.status}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="font-bold text-lg">{coach.name}</h3>
-                <p className="text-green-200 text-sm">{coach.specialization} Coach</p>
-                <span className={`mt-2 inline-block text-xs px-2 py-0.5 rounded-full ${coach.status === 'active' ? 'bg-green-400/30' : 'bg-red-400/30'}`}>{coach.status}</span>
               </div>
-              <div className="p-5 space-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-600"><Mail size={14} className="text-cricket-green" /> {coach.email}</div>
-                <div className="flex items-center gap-2 text-sm text-gray-600"><Phone size={14} className="text-cricket-green" /> {coach.phone}</div>
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">{coach.experience}y</span> experience | <span className="font-medium">{formatCurrency(coach.salary)}/mo</span>
+
+              <div className="p-4 space-y-2.5">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Mail size={13} className="text-blue-500 flex-shrink-0" />
+                  <span className="truncate">{coach.email}</span>
                 </div>
-                <p className="text-xs text-gray-500 line-clamp-2">{coach.qualifications}</p>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Phone size={13} className="text-blue-500 flex-shrink-0" />
+                  {coach.phone}
+                </div>
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span><span className="font-semibold text-gray-900">{coach.experience}y</span> experience</span>
+                  <span className="font-semibold text-gray-900">{formatCurrency(coach.salary)}<span className="text-gray-400 font-normal">/mo</span></span>
+                </div>
+                {coach.qualifications && (
+                  <p className="text-xs text-gray-400 line-clamp-1 border-t border-gray-50 pt-2">{coach.qualifications}</p>
+                )}
                 <div className="flex gap-2 pt-2 border-t border-gray-100">
-                  <Link to={`/admin/coaches/${coach.id}/edit`} className="btn-outline flex-1 text-center text-xs py-1.5 flex items-center justify-center gap-1.5">
+                  <Link
+                    to={`/admin/coaches/${coach.id}/edit`}
+                    className="btn-outline flex-1 text-center text-xs py-2 flex items-center justify-center gap-1.5"
+                  >
                     <Pencil size={12} /> Edit
                   </Link>
-                  <button onClick={() => handleDelete(coach.id, coach.name)} className="flex-1 btn-danger text-xs py-1.5 flex items-center justify-center gap-1.5">
+                  <button
+                    onClick={() => handleDelete(coach.id, coach.name)}
+                    className="flex-1 btn-danger text-xs py-2 flex items-center justify-center gap-1.5"
+                  >
                     <Trash2 size={12} /> Delete
                   </button>
                 </div>
@@ -71,7 +105,13 @@ export default function CoachManagement() {
           ))}
         </div>
       )}
-      {!loading && coaches.length === 0 && <div className="text-center py-12 text-gray-400">No coaches found</div>}
+      {!loading && coaches.length === 0 && (
+        <div className="text-center py-16 text-gray-400">
+          <User size={40} className="mx-auto mb-3 text-gray-300" />
+          <p className="font-medium">No coaches found</p>
+          <p className="text-sm mt-1">Add your first coach to get started</p>
+        </div>
+      )}
     </div>
   );
 }
