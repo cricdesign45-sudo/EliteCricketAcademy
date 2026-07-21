@@ -33,6 +33,7 @@ import AddFee from '@/pages/admin/fees/AddFee';
 import FeeReports from '@/pages/admin/fees/FeeReports';
 import Attendance from '@/pages/admin/attendance/Attendance';
 import AttendanceHistory from '@/pages/admin/attendance/AttendanceHistory';
+import AttendanceCalendar from '@/pages/admin/attendance/AttendanceCalendar';
 import AttendanceReports from '@/pages/admin/attendance/AttendanceReports';
 import HolidayManagement from '@/pages/admin/holidays/HolidayManagement';
 import CoachManagement from '@/pages/admin/coaches/CoachManagement';
@@ -99,6 +100,7 @@ export default function App() {
           <Route path="attendance" element={<Attendance />} />
           <Route path="attendance/history" element={<AttendanceHistory />} />
           <Route path="attendance/reports" element={<AttendanceReports />} />
+          <Route path="attendance/calendar" element={<AttendanceCalendar />} />
 
           {/* Holidays */}
           <Route path="holidays" element={<HolidayManagement />} />

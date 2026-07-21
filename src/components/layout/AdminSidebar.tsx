@@ -27,6 +27,7 @@ const sidebarSections = [
     label: 'Operations',
     items: [
       { label: 'Attendance', icon: CalendarCheck, path: '/admin/attendance' },
+      { label: 'Att. Calendar', icon: BarChart3, path: '/admin/attendance/calendar' },
       { label: 'Holidays', icon: UtensilsCrossed, path: '/admin/holidays' },
       { label: 'Fee Management', icon: CreditCard, path: '/admin/fees' },
       { label: 'Fee Reports', icon: BarChart3, path: '/admin/fees/reports' },
