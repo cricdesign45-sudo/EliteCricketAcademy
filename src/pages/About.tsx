@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import coachImg from '@/assets/Training under the guidance of Coach Chandrakant Mahto 🏏Proud Bowling Coach of Young Warriors .webp';
 import { Target, Eye, Heart, Trophy } from 'lucide-react';
 import { db } from '@/lib/db';
 import type { WebsiteContent } from '@/types';
@@ -26,7 +26,7 @@ export default function About() {
   }, []);
 
   const team = [
-    { name: about.founderName || 'Mr. Chandrakant Mahto', role: 'Founder & Director', desc: 'cricketer with a vision to create world-class cricket talent.', img: 'assetssrc/assets/Training under the guidance of Coach Chandrakant Mahto 🏏Proud Bowling Coach of Young Warriors .webp }
+    { name: about.founderName || 'Mr. Chandrakant Mahto', role: 'Founder & Director', desc: 'Cricketer with a vision to create world-class cricket talent.', img: coachImg },
   ];
 
   return (
