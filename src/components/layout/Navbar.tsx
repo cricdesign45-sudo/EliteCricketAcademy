@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import logoImg from '@/assets/academy-logo.jpg';
 const navLinks = [
   { label: 'Home', path: '/' },
   { label: 'About', path: '/about' },
@@ -23,12 +24,10 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center">
-              <span className="text-cricket-dark font-bold text-lg">EC</span>
-            </div>
+            <img src={logoImg} alt="Young Warriors Cricket Club" className="w-11 h-11 rounded-full object-cover border-2 border-amber-400" />
             <div>
-              <div className="text-white font-display font-bold text-lg leading-tight">Elite Cricket</div>
-              <div className="text-amber-400 text-xs tracking-widest uppercase">Academy</div>
+              <div className="text-white font-display font-bold text-base leading-tight">Young Warriors</div>
+              <div className="text-amber-400 text-xs tracking-widest uppercase">Cricket Club</div>
             </div>
           </Link>
 

@@ -58,9 +58,13 @@ export default function PlayerDetail() {
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center">
-          <div className="w-20 h-20 bg-cricket-green rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4">
-            {player.name.charAt(0)}
-          </div>
+          {player.photo ? (
+            <img src={player.photo} alt={player.name} className="w-20 h-20 rounded-full object-cover border-4 border-cricket-green shadow mx-auto mb-4" />
+          ) : (
+            <div className="w-20 h-20 bg-cricket-green rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4">
+              {player.name.charAt(0)}
+            </div>
+          )}
           <h2 className="text-xl font-bold text-gray-900">{player.name}</h2>
           <p className="text-gray-500 text-sm">{player.position}</p>
           <span className={`mt-2 inline-block ${player.status === 'active' ? 'badge-green' : player.status === 'suspended' ? 'badge-red' : 'badge-yellow'}`}>{player.status}</span>

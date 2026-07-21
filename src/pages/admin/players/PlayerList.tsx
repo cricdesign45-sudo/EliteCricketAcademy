@@ -94,9 +94,13 @@ export default function PlayerList() {
                   <tr key={player.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="table-td">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-cricket-green rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                          {player.name.charAt(0)}
-                        </div>
+                        {player.photo ? (
+                          <img src={player.photo} alt={player.name} className="w-9 h-9 rounded-full object-cover border-2 border-cricket-green flex-shrink-0" />
+                        ) : (
+                          <div className="w-9 h-9 bg-cricket-green rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                            {player.name.charAt(0)}
+                          </div>
+                        )}
                         <div>
                           <p className="font-semibold text-gray-900">{player.name}</p>
                           <p className="text-xs text-gray-500">{player.phone}</p>

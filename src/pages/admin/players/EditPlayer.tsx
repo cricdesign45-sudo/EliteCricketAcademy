@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Upload, X, Camera } from 'lucide-react';
 import { db } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { Player, Program } from '@/types';
 
@@ -12,6 +13,10 @@ export default function EditPlayer() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -27,6 +32,7 @@ export default function EditPlayer() {
           bowlingStyle: p.bowlingStyle, jerseyNumber: p.jerseyNumber,
           emergencyContact: p.emergencyContact, medicalNotes: p.medicalNotes || '',
         });
+        if (p.photo) setPhotoPreview(p.photo);
       }
     }
     load();
@@ -36,11 +42,41 @@ export default function EditPlayer() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const removePhoto = () => {
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
     setSaving(true);
-    await db.players.update(id, { ...form, age: parseInt(form.age) || 0, status: form.status as Player['status'] });
+    let photoUrl: string | undefined = player?.photo;
+    if (photoFile) {
+      setUploading(true);
+      const ext = photoFile.name.split('.').pop();
+      const fileName = `player-${id}-${Date.now()}.${ext}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('player-photos')
+        .upload(fileName, photoFile, { upsert: true });
+      setUploading(false);
+      if (uploadError) {
+        toast.error('Photo upload failed: ' + uploadError.message);
+        setSaving(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage.from('player-photos').getPublicUrl(uploadData.path);
+      photoUrl = urlData.publicUrl;
+    }
+    await db.players.update(id, { ...form, age: parseInt(form.age) || 0, status: form.status as Player['status'], photo: photoUrl });
     toast.success('Player updated successfully!');
     navigate(`/admin/players/${id}`);
   };
@@ -69,6 +105,34 @@ export default function EditPlayer() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Photo Upload */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 className="font-bold text-gray-900 mb-5 text-lg">Player Photo</h2>
+          <div className="flex items-center gap-6">
+            <div className="relative">
+              {photoPreview ? (
+                <div className="relative">
+                  <img src={photoPreview} alt="Preview" className="w-24 h-24 rounded-full object-cover border-4 border-cricket-green shadow" />
+                  <button type="button" onClick={removePhoto} className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-colors">
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center border-2 border-dashed border-gray-300">
+                  <Camera size={28} className="text-gray-400" />
+                </div>
+              )}
+            </div>
+            <div>
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoChange} className="hidden" id="photo-upload-edit" />
+              <label htmlFor="photo-upload-edit" className="btn-outline cursor-pointer flex items-center gap-2 text-sm px-4 py-2">
+                <Upload size={16} /> {photoPreview ? 'Change Photo' : 'Upload Photo'}
+              </label>
+              <p className="text-xs text-gray-400 mt-2">JPG, PNG or WebP · Max 5MB</p>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="font-bold text-gray-900 mb-5 text-lg">Personal Information</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -124,7 +188,7 @@ export default function EditPlayer() {
         </div>
 
         <div className="flex gap-4">
-          <button type="submit" disabled={saving} className="btn-primary px-8 py-3 text-base">{saving ? 'Saving…' : 'Save Changes'}</button>
+          <button type="submit" disabled={saving} className="btn-primary px-8 py-3 text-base">{saving ? (uploading ? 'Uploading photo…' : 'Saving…') : 'Save Changes'}</button>
           <Link to={`/admin/players/${id}`} className="btn-outline px-8 py-3 text-base">Cancel</Link>
         </div>
       </form>

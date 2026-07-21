@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import logoImg from '@/assets/academy-logo.jpg';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import { db } from '@/lib/db';
@@ -35,12 +36,10 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center">
-                <span className="text-cricket-dark font-bold text-lg">EC</span>
-              </div>
+              <img src={logoImg} alt="Young Warriors Cricket Club" className="w-11 h-11 rounded-full object-cover border-2 border-amber-400" />
               <div>
-                <div className="text-white font-display font-bold text-lg leading-tight">Elite Cricket</div>
-                <div className="text-amber-400 text-xs tracking-widest uppercase">Academy</div>
+                <div className="text-white font-display font-bold text-base leading-tight">Young Warriors</div>
+                <div className="text-amber-400 text-xs tracking-widest uppercase">Cricket Club</div>
               </div>
             </div>
             <p className="text-sm leading-relaxed mb-4">Building cricket champions since 2010. World-class coaching, professional facilities, and a passion for the game.</p>
@@ -89,7 +88,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} Elite Cricket Academy. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Young Warriors Cricket Club. All rights reserved.</p>
           <div className="flex gap-4">
             <Link to="/contact" className="hover:text-amber-400 transition-colors">Privacy Policy</Link>
             <Link to="/contact" className="hover:text-amber-400 transition-colors">Terms of Service</Link>

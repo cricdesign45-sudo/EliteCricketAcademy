@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Lock, User, AlertCircle } from 'lucide-react';
 import { auth } from '@/lib/storage';
+import logoImg from '@/assets/academy-logo.jpg';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -33,11 +34,9 @@ export default function Login() {
       <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-cricket-green rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <span className="text-white font-display font-bold text-2xl">EC</span>
-          </div>
+          <img src={logoImg} alt="Young Warriors Cricket Club" className="w-20 h-20 rounded-full object-cover border-4 border-cricket-green shadow-lg mx-auto mb-4" />
           <h1 className="text-2xl font-display font-bold text-gray-900">Admin Login</h1>
-          <p className="text-gray-500 text-sm mt-1">Young Warriros Cricket Club Management</p>
+          <p className="text-gray-500 text-sm mt-1">Young Warriors Cricket Club Management</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
