@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Trophy, Users, DollarSign } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Trophy, Users, DollarSign, Plus, ClipboardList, Trash2, Eye, Star } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   PieChart, Pie, Legend, CartesianGrid,
 } from 'recharts';
 import { db } from '@/lib/db';
 import { getAttendancePercentage, formatCurrency } from '@/lib/utils';
+import type { PlayerStatReport } from '@/types';
 
 interface PlayerStat {
   id: string; name: string; program: string; position: string; status: string;
@@ -15,6 +17,20 @@ interface PlayerStat {
 }
 
 const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899'];
+
+const ROLE_LABELS: Record<string, string> = {
+  batsman: 'Batsman',
+  bowler: 'Bowler',
+  wicket_keeper: 'Wicket Keeper',
+  all_rounder: 'All-Rounder',
+};
+
+const ROLE_COLORS: Record<string, string> = {
+  batsman: 'bg-blue-100 text-blue-700',
+  bowler: 'bg-emerald-100 text-emerald-700',
+  wicket_keeper: 'bg-purple-100 text-purple-700',
+  all_rounder: 'bg-amber-100 text-amber-700',
+};
 
 /* ── Custom Tooltip ────────────────────── */
 function AttTooltip({ active, payload }: { active?: boolean; payload?: { payload: PlayerStat }[] }) {
@@ -40,21 +56,77 @@ function FeeTooltip({ active, payload }: { active?: boolean; payload?: { name: s
   );
 }
 
+/* ── Stat Report Detail Modal ────────────────────── */
+function StatReportModal({ report, onClose }: { report: PlayerStatReport; onClose: () => void }) {
+  const skills = Object.entries(report.stats);
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h3 className="font-bold text-gray-900">{report.playerName}</h3>
+            <p className="text-xs text-gray-500">{ROLE_LABELS[report.role]} · {report.reportDate}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            {report.overallRating !== undefined && (
+              <div className="text-center">
+                <p className="text-xs text-gray-500">Overall</p>
+                <p className={`text-2xl font-bold ${
+                  report.overallRating >= 8 ? 'text-emerald-600' :
+                  report.overallRating >= 6 ? 'text-blue-600' :
+                  report.overallRating >= 4 ? 'text-amber-600' : 'text-red-500'
+                }`}>{report.overallRating}<span className="text-sm text-gray-400">/10</span></p>
+              </div>
+            )}
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+          </div>
+        </div>
+        <div className="p-5 space-y-2">
+          {skills.map(([skill, val]) => {
+            const barColor = val >= 8 ? 'bg-emerald-500' : val >= 6 ? 'bg-blue-500' : val >= 4 ? 'bg-amber-500' : 'bg-red-500';
+            const textColor = val >= 8 ? 'text-emerald-600' : val >= 6 ? 'text-blue-600' : val >= 4 ? 'text-amber-600' : 'text-red-500';
+            return (
+              <div key={skill} className="flex items-center gap-3">
+                <span className="text-sm text-gray-700 w-44 flex-shrink-0">{skill}</span>
+                <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className={`h-full rounded-full ${barColor}`} style={{ width: `${val * 10}%` }} />
+                </div>
+                <span className={`text-sm font-bold w-7 text-right ${textColor}`}>{val}</span>
+              </div>
+            );
+          })}
+        </div>
+        {report.notes && (
+          <div className="mx-5 mb-5 bg-gray-50 rounded-xl p-3">
+            <p className="text-xs text-gray-500 font-semibold mb-1">Coach Notes</p>
+            <p className="text-sm text-gray-700">{report.notes}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main ──────────────────────────────── */
 export default function PlayerStats() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<PlayerStat[]>([]);
   const [programDist, setProgramDist] = useState<{ name: string; value: number }[]>([]);
   const [feeData, setFeeData] = useState<{ name: string; value: number; fill: string }[]>([]);
-  const [activeTab, setActiveTab] = useState<'attendance' | 'fees' | 'leaderboard' | 'programs'>('attendance');
+  const [statReports, setStatReports] = useState<PlayerStatReport[]>([]);
+  const [selectedReport, setSelectedReport] = useState<PlayerStatReport | null>(null);
+  const [activeTab, setActiveTab] = useState<'reports' | 'attendance' | 'fees' | 'leaderboard' | 'programs'>('reports');
 
   useEffect(() => {
     async function load() {
-      const [players, attendance, fees] = await Promise.all([
+      const [players, attendance, fees, reports] = await Promise.all([
         db.players.getAll(),
         db.attendance.getAll(),
         db.fees.getAll(),
+        db.playerStatReports.getAll(),
       ]);
+
+      setStatReports(reports);
 
       const computed: PlayerStat[] = players.map(p => {
         const records = attendance.filter(a => a.playerId === p.id);
@@ -66,12 +138,10 @@ export default function PlayerStats() {
       });
       setStats(computed);
 
-      // Program distribution
       const progMap: Record<string, number> = {};
       players.forEach(p => { progMap[p.program] = (progMap[p.program] || 0) + 1; });
       setProgramDist(Object.entries(progMap).map(([name, value]) => ({ name, value })));
 
-      // Fee breakdown
       const paid = fees.filter(f => f.status === 'paid').reduce((s, f) => s + f.amount, 0);
       const pending = fees.filter(f => f.status === 'pending').reduce((s, f) => s + f.amount, 0);
       const overdue = fees.filter(f => f.status === 'overdue').reduce((s, f) => s + f.amount, 0);
@@ -88,25 +158,38 @@ export default function PlayerStats() {
     load();
   }, []);
 
+  const handleDeleteReport = async (id: string) => {
+    if (!confirm('Delete this stat report?')) return;
+    await db.playerStatReports.delete(id);
+    toast.success('Report deleted');
+    setStatReports(prev => prev.filter(r => r.id !== id));
+  };
+
   const top10Att = [...stats].sort((a, b) => b.pct - a.pct).slice(0, 10);
   const top10Fees = [...stats].sort((a, b) => b.totalFeesPaid - a.totalFeesPaid).slice(0, 10);
   const leaderboard = [...stats].sort((a, b) => (b.pct * 0.6 + (b.totalFeesPaid / 1000) * 0.4) - (a.pct * 0.6 + (a.totalFeesPaid / 1000) * 0.4)).slice(0, 10);
 
   const tabs = [
-    { id: 'attendance', label: 'Attendance Chart', icon: TrendingUp },
+    { id: 'reports', label: 'Stat Reports', icon: ClipboardList },
+    { id: 'attendance', label: 'Attendance', icon: TrendingUp },
     { id: 'fees', label: 'Fee Collection', icon: DollarSign },
     { id: 'leaderboard', label: 'Top Performers', icon: Trophy },
-    { id: 'programs', label: 'Program Enrollment', icon: Users },
+    { id: 'programs', label: 'Programs', icon: Users },
   ] as const;
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
-        <Link to="/admin/reports" className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"><ArrowLeft size={20} /></Link>
-        <div>
-          <h1 className="page-title">Player Statistics</h1>
-          <p className="text-gray-500 text-sm">Analytics and insights for all players</p>
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <Link to="/admin/reports" className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"><ArrowLeft size={20} /></Link>
+          <div>
+            <h1 className="page-title">Player Statistics</h1>
+            <p className="text-gray-500 text-sm">Skill reports, analytics and insights</p>
+          </div>
         </div>
+        <Link to="/admin/player-stats/add" className="btn-primary flex items-center gap-2 text-sm">
+          <Plus size={16} /> New Stat Report
+        </Link>
       </div>
 
       {loading ? (
@@ -117,9 +200,9 @@ export default function PlayerStats() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {[
               { label: 'Total Players', value: stats.length, icon: Users, color: 'text-blue-600 bg-blue-50 border-blue-100' },
+              { label: 'Stat Reports', value: statReports.length, icon: ClipboardList, color: 'text-purple-600 bg-purple-50 border-purple-100' },
               { label: 'Avg Attendance', value: `${stats.length > 0 ? Math.round(stats.reduce((s, p) => s + p.pct, 0) / stats.length) : 0}%`, icon: TrendingUp, color: 'text-green-600 bg-green-50 border-green-100' },
               { label: 'Total Collected', value: formatCurrency(stats.reduce((s, p) => s + p.totalFeesPaid, 0)), icon: DollarSign, color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
-              { label: 'Total Pending', value: formatCurrency(stats.reduce((s, p) => s + p.pendingFees, 0)), icon: Trophy, color: 'text-amber-600 bg-amber-50 border-amber-100' },
             ].map(s => (
               <div key={s.label} className={`border rounded-xl p-4 ${s.color}`}>
                 <div className="flex items-center justify-between mb-2">
@@ -147,6 +230,98 @@ export default function PlayerStats() {
             ))}
           </div>
 
+          {/* ── Stat Reports Tab ── */}
+          {activeTab === 'reports' && (
+            <div className="space-y-4">
+              {statReports.length === 0 ? (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 text-center py-20">
+                  <ClipboardList size={48} className="mx-auto mb-3 opacity-30 text-gray-400" />
+                  <p className="text-gray-500 font-medium">No stat reports yet</p>
+                  <p className="text-gray-400 text-sm mt-1">Create a report to track player skill ratings (1–10)</p>
+                  <Link to="/admin/player-stats/add" className="btn-primary inline-flex items-center gap-2 mt-4 text-sm">
+                    <Plus size={14} /> Create First Report
+                  </Link>
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 className="font-bold text-gray-900">All Stat Reports ({statReports.length})</h3>
+                    <Link to="/admin/player-stats/add" className="flex items-center gap-1.5 text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors">
+                      <Plus size={12} /> Add Report
+                    </Link>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-100">
+                          <th className="table-th">Player</th>
+                          <th className="table-th">Role</th>
+                          <th className="table-th">Overall</th>
+                          <th className="table-th">Top Skill</th>
+                          <th className="table-th">Date</th>
+                          <th className="table-th">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {statReports.map(report => {
+                          const skillEntries = Object.entries(report.stats);
+                          const topSkill = [...skillEntries].sort((a, b) => b[1] - a[1])[0];
+                          return (
+                            <tr key={report.id} className="hover:bg-gray-50/50">
+                              <td className="table-td font-medium text-gray-900">{report.playerName}</td>
+                              <td className="table-td">
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ROLE_COLORS[report.role] || 'bg-gray-100 text-gray-600'}`}>
+                                  {ROLE_LABELS[report.role] || report.role}
+                                </span>
+                              </td>
+                              <td className="table-td">
+                                {report.overallRating !== undefined ? (
+                                  <div className="flex items-center gap-2">
+                                    <Star size={12} className={report.overallRating >= 8 ? 'text-emerald-500' : report.overallRating >= 6 ? 'text-blue-500' : 'text-amber-500'} />
+                                    <span className={`font-bold text-sm ${
+                                      report.overallRating >= 8 ? 'text-emerald-600' :
+                                      report.overallRating >= 6 ? 'text-blue-600' :
+                                      report.overallRating >= 4 ? 'text-amber-600' : 'text-red-500'
+                                    }`}>{report.overallRating}/10</span>
+                                  </div>
+                                ) : '—'}
+                              </td>
+                              <td className="table-td text-gray-600 text-xs">
+                                {topSkill ? (
+                                  <span>{topSkill[0]} <strong className="text-gray-900">{topSkill[1]}</strong></span>
+                                ) : '—'}
+                              </td>
+                              <td className="table-td text-gray-500 text-xs">{report.reportDate}</td>
+                              <td className="table-td">
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => setSelectedReport(report)}
+                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                    title="View"
+                                  ><Eye size={14} /></button>
+                                  <Link
+                                    to={`/admin/player-stats/report/${report.id}/edit`}
+                                    className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                    title="Edit"
+                                  ><ClipboardList size={14} /></Link>
+                                  <button
+                                    onClick={() => handleDeleteReport(report.id)}
+                                    className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                    title="Delete"
+                                  ><Trash2 size={14} /></button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Attendance Bar Chart */}
           {activeTab === 'attendance' && (
             <div className="space-y-5">
@@ -171,7 +346,6 @@ export default function PlayerStats() {
                 )}
               </div>
 
-              {/* Full table */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100">
                   <h3 className="font-bold text-gray-900">All Players — Attendance Details</h3>
@@ -263,7 +437,6 @@ export default function PlayerStats() {
                 </div>
               </div>
 
-              {/* Fee detail table */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100">
                   <h3 className="font-bold text-gray-900">Fee Summary per Player</h3>
@@ -417,6 +590,11 @@ export default function PlayerStats() {
             </div>
           )}
         </>
+      )}
+
+      {/* Detail Modal */}
+      {selectedReport && (
+        <StatReportModal report={selectedReport} onClose={() => setSelectedReport(null)} />
       )}
     </div>
   );

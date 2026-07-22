@@ -52,6 +52,7 @@ import StoreManagement from '@/pages/admin/store/StoreManagement';
 import OrderManagement from '@/pages/admin/store/OrderManagement';
 import Reports from '@/pages/admin/reports/Reports';
 import PlayerStats from '@/pages/admin/stats/PlayerStats';
+import AddPlayerStatReport from '@/pages/admin/stats/AddPlayerStatReport';
 import Settings from '@/pages/admin/settings/Settings';
 import WebsiteEditor from '@/pages/admin/website-editor/WebsiteEditor';
 import EditHome from '@/pages/admin/website-editor/EditHome';
@@ -138,6 +139,9 @@ export default function App() {
           {/* Reports */}
           <Route path="reports" element={<Reports />} />
           <Route path="player-stats" element={<PlayerStats />} />
+          <Route path="player-stats/add" element={<AddPlayerStatReport />} />
+          <Route path="player-stats/add/:playerId" element={<AddPlayerStatReport />} />
+          <Route path="player-stats/report/:reportId/edit" element={<AddPlayerStatReport />} />
 
           {/* Settings */}
           <Route path="settings" element={<Settings />} />

@@ -7,8 +7,24 @@ import type {
   Player, Coach, Program, Fee, AttendanceRecord, Holiday,
   NewsPost, Achievement, GalleryItem, Testimonial,
   ContactMessage, WebsiteContent, Notification,
-  PlayerMessage, StoreProduct, StoreOrder,
+  PlayerMessage, StoreProduct, StoreOrder, PlayerStatReport,
 } from '@/types';
+
+function toPlayerStatReport(row: Record<string, unknown>): PlayerStatReport {
+  return {
+    id: row.id as string,
+    playerId: row.player_id as string,
+    playerName: row.player_name as string,
+    role: row.role as PlayerStatReport['role'],
+    stats: (row.stats as Record<string, number>) || {},
+    overallRating: row.overall_rating as number | undefined,
+    notes: row.notes as string | undefined,
+    markedBy: (row.marked_by as string) || 'Admin',
+    reportDate: row.report_date as string,
+    createdAt: row.created_at as string | undefined,
+    updatedAt: row.updated_at as string | undefined,
+  };
+}
 
 function toPlayerMessage(row: Record<string, unknown>): PlayerMessage {
   return {
@@ -857,6 +873,53 @@ export const db = {
     },
     async delete(id: string): Promise<void> {
       const { error } = await supabase.from('store_orders').delete().eq('id', id);
+      if (error) throw error;
+    },
+  },
+
+  // ─── PLAYER STAT REPORTS ────────────────────────────────────────
+  playerStatReports: {
+    async getAll(): Promise<PlayerStatReport[]> {
+      const { data, error } = await supabase.from('player_stat_reports').select('*').order('report_date', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => toPlayerStatReport(row as Record<string, unknown>));
+    },
+    async getByPlayer(playerId: string): Promise<PlayerStatReport[]> {
+      const { data, error } = await supabase.from('player_stat_reports').select('*').eq('player_id', playerId).order('report_date', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => toPlayerStatReport(row as Record<string, unknown>));
+    },
+    async getLatestByPlayer(playerId: string): Promise<PlayerStatReport | null> {
+      const { data } = await supabase.from('player_stat_reports').select('*').eq('player_id', playerId).order('report_date', { ascending: false }).limit(1).single();
+      return data ? toPlayerStatReport(data as Record<string, unknown>) : null;
+    },
+    async add(report: Omit<PlayerStatReport, 'id' | 'createdAt' | 'updatedAt'>): Promise<PlayerStatReport> {
+      const { data, error } = await supabase.from('player_stat_reports').insert({
+        player_id: report.playerId,
+        player_name: report.playerName,
+        role: report.role,
+        stats: report.stats,
+        overall_rating: report.overallRating ?? null,
+        notes: report.notes ?? null,
+        marked_by: report.markedBy,
+        report_date: report.reportDate,
+      }).select().single();
+      if (error) throw error;
+      return toPlayerStatReport(data as Record<string, unknown>);
+    },
+    async update(id: string, data: Partial<PlayerStatReport>): Promise<void> {
+      const mapped: Record<string, unknown> = {};
+      if (data.role !== undefined) mapped.role = data.role;
+      if (data.stats !== undefined) mapped.stats = data.stats;
+      if (data.overallRating !== undefined) mapped.overall_rating = data.overallRating;
+      if (data.notes !== undefined) mapped.notes = data.notes;
+      if (data.reportDate !== undefined) mapped.report_date = data.reportDate;
+      mapped.updated_at = new Date().toISOString();
+      const { error } = await supabase.from('player_stat_reports').update(mapped).eq('id', id);
+      if (error) throw error;
+    },
+    async delete(id: string): Promise<void> {
+      const { error } = await supabase.from('player_stat_reports').delete().eq('id', id);
       if (error) throw error;
     },
   },

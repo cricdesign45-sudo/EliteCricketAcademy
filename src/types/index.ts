@@ -237,6 +237,20 @@ export interface StoreOrder {
   createdAt?: string;
 }
 
+export interface PlayerStatReport {
+  id: string;
+  playerId: string;
+  playerName: string;
+  role: 'batsman' | 'bowler' | 'wicket_keeper' | 'all_rounder';
+  stats: Record<string, number>;
+  overallRating?: number;
+  notes?: string;
+  markedBy: string;
+  reportDate: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Notification {
   id: string;
   title: string;

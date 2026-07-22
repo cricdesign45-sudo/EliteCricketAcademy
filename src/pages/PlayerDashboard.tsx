@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   LogOut, User, Calendar, CreditCard, Trophy, TrendingUp,
-  CheckCircle, XCircle, Clock, AlertTriangle, MessageSquare, Send
+  CheckCircle, XCircle, Clock, AlertTriangle, MessageSquare, Send, BarChart2
 } from 'lucide-react';
 import { db } from '@/lib/db';
 import { formatDate, formatCurrency } from '@/lib/utils';
-import type { Player, Fee, AttendanceRecord, PlayerMessage } from '@/types';
+import type { Player, Fee, AttendanceRecord, PlayerMessage, PlayerStatReport } from '@/types';
 import logoImg from '@/assets/academy-logo.jpg';
 
 interface PlayerSession {
@@ -38,7 +38,8 @@ export default function PlayerDashboard() {
   const [fees, setFees] = useState<Fee[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [messages, setMessages] = useState<PlayerMessage[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'fees' | 'messages' | 'profile'>('overview');
+  const [statReports, setStatReports] = useState<PlayerStatReport[]>([]);
+  const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'fees' | 'messages' | 'stats' | 'profile'>('overview');
   const [msgSubject, setMsgSubject] = useState('');
   const [msgBody, setMsgBody] = useState('');
   const [sendingMsg, setSendingMsg] = useState(false);
@@ -54,11 +55,13 @@ export default function PlayerDashboard() {
       db.fees.getByPlayer(s.id),
       db.attendance.getByPlayer(s.id),
       db.playerMessages.getByPlayer(s.id),
-    ]).then(([p, f, a, m]) => {
+      db.playerStatReports.getByPlayer(s.id),
+    ]).then(([p, f, a, m, sr]) => {
       setPlayer(p);
       setFees(f);
       setAttendance(a);
       setMessages(m);
+      setStatReports(sr);
       setLoading(false);
     });
   }, [navigate]);
@@ -95,6 +98,7 @@ export default function PlayerDashboard() {
     { id: 'attendance', label: 'Attendance', icon: Calendar },
     { id: 'fees', label: 'Fees', icon: CreditCard },
     { id: 'messages', label: 'Messages', icon: MessageSquare },
+    { id: 'stats', label: 'My Stats', icon: BarChart2 },
     { id: 'profile', label: 'Profile', icon: User },
   ] as const;
 
@@ -377,6 +381,66 @@ export default function PlayerDashboard() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* My Stats Tab */}
+        {activeTab === 'stats' && (
+          <div className="space-y-5">
+            {statReports.length === 0 ? (
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm text-center py-16">
+                <BarChart2 size={40} className="mx-auto mb-3 opacity-30 text-gray-400" />
+                <p className="text-gray-500 font-medium">No stat reports yet</p>
+                <p className="text-gray-400 text-sm mt-1">Your coach will add skill assessment reports here.</p>
+              </div>
+            ) : statReports.map(report => {
+              const skills = Object.entries(report.stats);
+              const ROLE_LABELS: Record<string, string> = {
+                batsman: 'Batsman', bowler: 'Bowler',
+                wicket_keeper: 'Wicket Keeper', all_rounder: 'All-Rounder',
+              };
+              return (
+                <div key={report.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                  <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+                    <div>
+                      <h3 className="font-bold text-gray-900">{ROLE_LABELS[report.role] || report.role} Assessment</h3>
+                      <p className="text-xs text-gray-500">{report.reportDate} · Marked by {report.markedBy}</p>
+                    </div>
+                    {report.overallRating !== undefined && (
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">Overall</p>
+                        <p className={`text-2xl font-bold ${
+                          report.overallRating >= 8 ? 'text-emerald-600' :
+                          report.overallRating >= 6 ? 'text-blue-600' :
+                          report.overallRating >= 4 ? 'text-amber-600' : 'text-red-500'
+                        }`}>{report.overallRating}<span className="text-sm text-gray-400">/10</span></p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-5 space-y-2.5">
+                    {skills.map(([skill, val]) => {
+                      const barColor = val >= 8 ? 'bg-emerald-500' : val >= 6 ? 'bg-blue-500' : val >= 4 ? 'bg-amber-500' : 'bg-red-500';
+                      const textColor = val >= 8 ? 'text-emerald-600' : val >= 6 ? 'text-blue-600' : val >= 4 ? 'text-amber-600' : 'text-red-500';
+                      return (
+                        <div key={skill} className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700 w-40 flex-shrink-0">{skill}</span>
+                          <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full ${barColor}`} style={{ width: `${val * 10}%` }} />
+                          </div>
+                          <span className={`text-sm font-bold w-7 text-right ${textColor}`}>{val}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {report.notes && (
+                    <div className="mx-5 mb-5 bg-gray-50 rounded-xl p-3">
+                      <p className="text-xs text-gray-500 font-semibold mb-1">Coach Notes</p>
+                      <p className="text-sm text-gray-700">{report.notes}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 
