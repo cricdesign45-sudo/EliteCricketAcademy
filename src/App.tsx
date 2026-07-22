@@ -74,7 +74,6 @@ export default function App() {
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/news" element={<News />} />
           <Route path="/news/:id" element={<NewsDetail />} />
-          <Route path="/schedule" element={<Schedule />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/register" element={<Register />} />
           <Route path="/store" element={<Store />} />
