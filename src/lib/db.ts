@@ -7,7 +7,61 @@ import type {
   Player, Coach, Program, Fee, AttendanceRecord, Holiday,
   NewsPost, Achievement, GalleryItem, Testimonial,
   ContactMessage, WebsiteContent, Notification,
+  PlayerMessage, StoreProduct, StoreOrder,
 } from '@/types';
+
+function toPlayerMessage(row: Record<string, unknown>): PlayerMessage {
+  return {
+    id: row.id as string,
+    senderId: row.sender_id as string,
+    senderName: row.sender_name as string,
+    senderType: row.sender_type as PlayerMessage['senderType'],
+    recipientId: row.recipient_id as string,
+    recipientName: row.recipient_name as string,
+    subject: row.subject as string | undefined,
+    message: row.message as string,
+    reply: row.reply as string | undefined,
+    repliedAt: row.replied_at as string | undefined,
+    isRead: (row.is_read as boolean) || false,
+    status: row.status as PlayerMessage['status'],
+    createdAt: row.created_at as string,
+  };
+}
+
+function toStoreProduct(row: Record<string, unknown>): StoreProduct {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    description: row.description as string | undefined,
+    price: row.price as number,
+    originalPrice: row.original_price as number | undefined,
+    category: row.category as string,
+    image: row.image as string | undefined,
+    stock: row.stock as number,
+    status: row.status as StoreProduct['status'],
+    featured: (row.featured as boolean) || false,
+    tags: (row.tags as string[]) || [],
+    createdAt: row.created_at as string | undefined,
+  };
+}
+
+function toStoreOrder(row: Record<string, unknown>): StoreOrder {
+  return {
+    id: row.id as string,
+    orderNumber: row.order_number as string,
+    customerName: row.customer_name as string,
+    customerPhone: row.customer_phone as string | undefined,
+    customerEmail: row.customer_email as string | undefined,
+    playerId: row.player_id as string | undefined,
+    items: (row.items as StoreOrder['items']) || [],
+    totalAmount: row.total_amount as number,
+    status: row.status as StoreOrder['status'],
+    paymentMethod: row.payment_method as string | undefined,
+    paymentStatus: row.payment_status as StoreOrder['paymentStatus'],
+    notes: row.notes as string | undefined,
+    createdAt: row.created_at as string | undefined,
+  };
+}
 
 // ─── column name mappers ──────────────────────────────────────────
 // Supabase uses snake_case; our types use camelCase.
@@ -682,6 +736,127 @@ export const db = {
     },
     async delete(id: string): Promise<void> {
       const { error } = await supabase.from('notifications').delete().eq('id', id);
+      if (error) throw error;
+    },
+  },
+
+  // ─── PLAYER MESSAGES ──────────────────────────────────────────
+  playerMessages: {
+    async getAll(): Promise<PlayerMessage[]> {
+      const { data, error } = await supabase.from('player_messages').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => toPlayerMessage(row as Record<string, unknown>));
+    },
+    async getByPlayer(playerId: string): Promise<PlayerMessage[]> {
+      const { data, error } = await supabase.from('player_messages').select('*').eq('sender_id', playerId).order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => toPlayerMessage(row as Record<string, unknown>));
+    },
+    async send(msg: Omit<PlayerMessage, 'id' | 'createdAt' | 'reply' | 'repliedAt'>): Promise<PlayerMessage> {
+      const { data, error } = await supabase.from('player_messages').insert({
+        sender_id: msg.senderId, sender_name: msg.senderName,
+        sender_type: msg.senderType, recipient_id: msg.recipientId,
+        recipient_name: msg.recipientName, subject: msg.subject || null,
+        message: msg.message, is_read: msg.isRead, status: msg.status,
+      }).select().single();
+      if (error) throw error;
+      return toPlayerMessage(data as Record<string, unknown>);
+    },
+    async reply(id: string, replyText: string): Promise<void> {
+      const { error } = await supabase.from('player_messages').update({
+        reply: replyText,
+        replied_at: new Date().toISOString(),
+        status: 'replied',
+        is_read: true,
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    async markRead(id: string): Promise<void> {
+      const { error } = await supabase.from('player_messages').update({ is_read: true, status: 'read' }).eq('id', id);
+      if (error) throw error;
+    },
+    async delete(id: string): Promise<void> {
+      const { error } = await supabase.from('player_messages').delete().eq('id', id);
+      if (error) throw error;
+    },
+  },
+
+  // ─── STORE PRODUCTS ───────────────────────────────────────────
+  storeProducts: {
+    async getAll(): Promise<StoreProduct[]> {
+      const { data, error } = await supabase.from('store_products').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => toStoreProduct(row as Record<string, unknown>));
+    },
+    async getActive(): Promise<StoreProduct[]> {
+      const { data, error } = await supabase.from('store_products').select('*').eq('status', 'active').order('featured', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => toStoreProduct(row as Record<string, unknown>));
+    },
+    async add(product: Omit<StoreProduct, 'id' | 'createdAt'>): Promise<StoreProduct> {
+      const { data, error } = await supabase.from('store_products').insert({
+        name: product.name, description: product.description || null,
+        price: product.price, original_price: product.originalPrice || null,
+        category: product.category, image: product.image || null,
+        stock: product.stock, status: product.status,
+        featured: product.featured, tags: product.tags,
+      }).select().single();
+      if (error) throw error;
+      return toStoreProduct(data as Record<string, unknown>);
+    },
+    async update(id: string, data: Partial<StoreProduct>): Promise<void> {
+      const mapped: Record<string, unknown> = {};
+      if (data.name !== undefined) mapped.name = data.name;
+      if (data.description !== undefined) mapped.description = data.description;
+      if (data.price !== undefined) mapped.price = data.price;
+      if (data.originalPrice !== undefined) mapped.original_price = data.originalPrice;
+      if (data.category !== undefined) mapped.category = data.category;
+      if (data.image !== undefined) mapped.image = data.image;
+      if (data.stock !== undefined) mapped.stock = data.stock;
+      if (data.status !== undefined) mapped.status = data.status;
+      if (data.featured !== undefined) mapped.featured = data.featured;
+      if (data.tags !== undefined) mapped.tags = data.tags;
+      mapped.updated_at = new Date().toISOString();
+      const { error } = await supabase.from('store_products').update(mapped).eq('id', id);
+      if (error) throw error;
+    },
+    async delete(id: string): Promise<void> {
+      const { error } = await supabase.from('store_products').delete().eq('id', id);
+      if (error) throw error;
+    },
+  },
+
+  // ─── STORE ORDERS ─────────────────────────────────────────────
+  storeOrders: {
+    async getAll(): Promise<StoreOrder[]> {
+      const { data, error } = await supabase.from('store_orders').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => toStoreOrder(row as Record<string, unknown>));
+    },
+    async add(order: Omit<StoreOrder, 'id' | 'createdAt'>): Promise<StoreOrder> {
+      const { data, error } = await supabase.from('store_orders').insert({
+        order_number: order.orderNumber, customer_name: order.customerName,
+        customer_phone: order.customerPhone || null, customer_email: order.customerEmail || null,
+        player_id: order.playerId || null, items: order.items,
+        total_amount: order.totalAmount, status: order.status,
+        payment_method: order.paymentMethod || null, payment_status: order.paymentStatus,
+        notes: order.notes || null,
+      }).select().single();
+      if (error) throw error;
+      return toStoreOrder(data as Record<string, unknown>);
+    },
+    async update(id: string, data: Partial<StoreOrder>): Promise<void> {
+      const mapped: Record<string, unknown> = {};
+      if (data.status !== undefined) mapped.status = data.status;
+      if (data.paymentStatus !== undefined) mapped.payment_status = data.paymentStatus;
+      if (data.paymentMethod !== undefined) mapped.payment_method = data.paymentMethod;
+      if (data.notes !== undefined) mapped.notes = data.notes;
+      mapped.updated_at = new Date().toISOString();
+      const { error } = await supabase.from('store_orders').update(mapped).eq('id', id);
+      if (error) throw error;
+    },
+    async delete(id: string): Promise<void> {
+      const { error } = await supabase.from('store_orders').delete().eq('id', id);
       if (error) throw error;
     },
   },

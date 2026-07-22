@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   LogOut, User, Calendar, CreditCard, Trophy, TrendingUp,
-  CheckCircle, XCircle, Clock, AlertTriangle, Star, Shield, Zap
+  CheckCircle, XCircle, Clock, AlertTriangle, MessageSquare, Send
 } from 'lucide-react';
 import { db } from '@/lib/db';
 import { formatDate, formatCurrency } from '@/lib/utils';
-import type { Player, Fee, AttendanceRecord } from '@/types';
+import type { Player, Fee, AttendanceRecord, PlayerMessage } from '@/types';
 import logoImg from '@/assets/academy-logo.jpg';
 
 interface PlayerSession {
@@ -37,7 +37,11 @@ export default function PlayerDashboard() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [fees, setFees] = useState<Fee[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'fees' | 'profile'>('overview');
+  const [messages, setMessages] = useState<PlayerMessage[]>([]);
+  const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'fees' | 'messages' | 'profile'>('overview');
+  const [msgSubject, setMsgSubject] = useState('');
+  const [msgBody, setMsgBody] = useState('');
+  const [sendingMsg, setSendingMsg] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,10 +53,12 @@ export default function PlayerDashboard() {
       db.players.getById(s.id),
       db.fees.getByPlayer(s.id),
       db.attendance.getByPlayer(s.id),
-    ]).then(([p, f, a]) => {
+      db.playerMessages.getByPlayer(s.id),
+    ]).then(([p, f, a, m]) => {
       setPlayer(p);
       setFees(f);
       setAttendance(a);
+      setMessages(m);
       setLoading(false);
     });
   }, [navigate]);
@@ -88,8 +94,31 @@ export default function PlayerDashboard() {
     { id: 'overview', label: 'Overview', icon: TrendingUp },
     { id: 'attendance', label: 'Attendance', icon: Calendar },
     { id: 'fees', label: 'Fees', icon: CreditCard },
+    { id: 'messages', label: 'Messages', icon: MessageSquare },
     { id: 'profile', label: 'Profile', icon: User },
   ] as const;
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session || !msgBody.trim()) return;
+    setSendingMsg(true);
+    await db.playerMessages.send({
+      senderId: session.id,
+      senderName: player!.name,
+      senderType: 'player',
+      recipientId: 'admin',
+      recipientName: 'Admin',
+      subject: msgSubject.trim() || undefined,
+      message: msgBody.trim(),
+      isRead: false,
+      status: 'unread',
+    });
+    const updated = await db.playerMessages.getByPlayer(session.id);
+    setMessages(updated);
+    setMsgSubject('');
+    setMsgBody('');
+    setSendingMsg(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -345,6 +374,70 @@ export default function PlayerDashboard() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Messages Tab */}
+        {activeTab === 'messages' && (
+          <div className="space-y-5">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Send size={16} /> Send Message to Admin</h3>
+              <form onSubmit={handleSendMessage} className="space-y-3">
+                <input
+                  value={msgSubject}
+                  onChange={e => setMsgSubject(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-gray-400"
+                  placeholder="Subject (optional)"
+                />
+                <textarea
+                  required
+                  rows={3}
+                  value={msgBody}
+                  onChange={e => setMsgBody(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-gray-400 resize-none"
+                  placeholder="Write your message…"
+                />
+                <button type="submit" disabled={sendingMsg || !msgBody.trim()} className="flex items-center gap-2 bg-gray-900 text-white text-sm px-5 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors">
+                  <Send size={14} /> {sendingMsg ? 'Sending…' : 'Send Message'}
+                </button>
+              </form>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-5 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2"><MessageSquare size={16} /> Message History</h3>
+              </div>
+              {messages.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">
+                  <MessageSquare size={36} className="mx-auto mb-3 opacity-40" />
+                  <p className="text-sm">No messages yet. Send your first message above.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-50">
+                  {messages.map(msg => (
+                    <div key={msg.id} className="p-5">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                          {msg.subject && <p className="font-semibold text-gray-900 text-sm">{msg.subject}</p>}
+                          <p className="text-xs text-gray-400">{new Date(msg.createdAt).toLocaleString()}</p>
+                        </div>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${
+                          msg.status === 'replied' ? 'bg-green-100 text-green-700' :
+                          msg.status === 'read' ? 'bg-blue-100 text-blue-600' :
+                          'bg-amber-100 text-amber-700'
+                        }`}>{msg.status}</span>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 mb-2">{msg.message}</div>
+                      {msg.reply && (
+                        <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-3 text-sm">
+                          <p className="text-xs text-blue-500 font-semibold mb-1">Admin Reply · {msg.repliedAt ? new Date(msg.repliedAt).toLocaleString() : ''}</p>
+                          <p className="text-gray-700">{msg.reply}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

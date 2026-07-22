@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, Link } from 'react-router-dom';
-import { Bell, Menu, X, AlertCircle, CalendarCheck } from 'lucide-react';
+import { Bell, Menu, X, AlertCircle, CalendarCheck, WifiOff } from 'lucide-react';
 import AdminSidebar from './AdminSidebar';
 import { auth } from '@/lib/storage';
 import { db } from '@/lib/db';
@@ -11,7 +11,16 @@ export default function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showAttendancePopup, setShowAttendancePopup] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const goOnline = () => setIsOffline(false);
+    const goOffline = () => setIsOffline(true);
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
+    return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); };
+  }, []);
 
   useEffect(() => {
     if (!auth.isLoggedIn()) {
@@ -55,6 +64,11 @@ export default function AdminLayout() {
             </button>
             <span className="text-gray-800 font-semibold text-sm md:text-base hidden sm:block">Young Warriors Cricket Club</span>
             <span className="text-gray-800 font-semibold text-sm block sm:hidden">YWCC</span>
+            {isOffline && (
+              <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-700 text-xs font-medium px-2.5 py-1 rounded-full">
+                <WifiOff size={12} /> Offline
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Link

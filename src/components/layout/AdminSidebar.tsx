@@ -51,6 +51,13 @@ const sidebarSections = [
     ],
   },
   {
+    label: 'Store',
+    items: [
+      { label: 'Products', icon: BookOpen, path: '/admin/store' },
+      { label: 'Orders', icon: CreditCard, path: '/admin/store/orders' },
+    ],
+  },
+  {
     label: 'Reports',
     items: [
       { label: 'Reports Overview', icon: FileText, path: '/admin/reports' },

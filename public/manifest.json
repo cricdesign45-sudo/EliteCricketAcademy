@@ -1,0 +1,16 @@
+{
+  "name": "Young Warriors Cricket Club",
+  "short_name": "YWCC",
+  "description": "Academy management portal for Young Warriors Cricket Club",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
 // Layouts
@@ -17,6 +17,7 @@ import NewsDetail from '@/pages/NewsDetail';
 import Schedule from '@/pages/Schedule';
 import Contact from '@/pages/Contact';
 import Register from '@/pages/Register';
+import Store from '@/pages/Store';
 import Login from '@/pages/Login';
 import PlayerLogin from '@/pages/PlayerLogin';
 import PlayerDashboard from '@/pages/PlayerDashboard';
@@ -47,6 +48,8 @@ import AchievementsAdmin from '@/pages/admin/achievements/AchievementsAdmin';
 import Testimonials from '@/pages/admin/testimonials/Testimonials';
 import Messages from '@/pages/admin/messages/Messages';
 import Notifications from '@/pages/admin/notifications/Notifications';
+import StoreManagement from '@/pages/admin/store/StoreManagement';
+import OrderManagement from '@/pages/admin/store/OrderManagement';
 import Reports from '@/pages/admin/reports/Reports';
 import PlayerStats from '@/pages/admin/stats/PlayerStats';
 import Settings from '@/pages/admin/settings/Settings';
@@ -74,6 +77,7 @@ export default function App() {
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/store" element={<Store />} />
         </Route>
 
         {/* Auth */}
@@ -126,6 +130,10 @@ export default function App() {
           {/* Communication */}
           <Route path="messages" element={<Messages />} />
           <Route path="notifications" element={<Notifications />} />
+
+          {/* Store */}
+          <Route path="store" element={<StoreManagement />} />
+          <Route path="store/orders" element={<OrderManagement />} />
 
           {/* Reports */}
           <Route path="reports" element={<Reports />} />

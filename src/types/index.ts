@@ -190,6 +190,53 @@ export interface WebsiteContent {
   }[];
 }
 
+export interface PlayerMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderType: 'player' | 'admin';
+  recipientId: string;
+  recipientName: string;
+  subject?: string;
+  message: string;
+  reply?: string;
+  repliedAt?: string;
+  isRead: boolean;
+  status: 'unread' | 'read' | 'replied';
+  createdAt: string;
+}
+
+export interface StoreProduct {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  originalPrice?: number;
+  category: string;
+  image?: string;
+  stock: number;
+  status: 'active' | 'inactive' | 'out_of_stock';
+  featured: boolean;
+  tags: string[];
+  createdAt?: string;
+}
+
+export interface StoreOrder {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  playerId?: string;
+  items: { productId: string; productName: string; price: number; quantity: number }[];
+  totalAmount: number;
+  status: 'pending' | 'confirmed' | 'delivered' | 'cancelled';
+  paymentMethod?: string;
+  paymentStatus: 'unpaid' | 'paid';
+  notes?: string;
+  createdAt?: string;
+}
+
 export interface Notification {
   id: string;
   title: string;
