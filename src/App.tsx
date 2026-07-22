@@ -14,7 +14,6 @@ import Gallery from '@/pages/Gallery';
 import Achievements from '@/pages/Achievements';
 import News from '@/pages/News';
 import NewsDetail from '@/pages/NewsDetail';
-import Schedule from '@/pages/Schedule';
 import Contact from '@/pages/Contact';
 import Register from '@/pages/Register';
 import Store from '@/pages/Store';
