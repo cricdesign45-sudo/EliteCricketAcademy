@@ -1,0 +1,82 @@
+/* TEAM */
+
+Organization: Young Warriors Cricket Club
+Website: https://www.youngwarriorscc.in
+Email: contact@youngwarriorscc.in
+Location: Jharkhand, India
+
+/* ABOUT */
+
+Young Warriors Cricket Club is a professional cricket academy dedicated to developing young cricketers through structured coaching, fitness training, match practice, tournaments, and performance analysis.
+
+Mission:
+To nurture disciplined, skilled, and confident cricketers.
+
+Vision:
+To become one of India's leading cricket academies by producing talented players and promoting excellence in the sport.
+
+/* TECHNOLOGIES */
+
+Frontend:
+- React
+- TypeScript
+- Vite
+- HTML5
+- CSS3
+- JavaScript
+
+Backend:
+- Supabase
+
+Hosting:
+- Vercel
+
+Version Control:
+- Git & GitHub
+
+SEO:
+- Sitemap.xml
+- Robots.txt
+- Structured Data (JSON-LD)
+- Open Graph
+- Twitter Cards
+
+Performance:
+- Responsive Design
+- Progressive Web App (PWA)
+- Image Optimization
+- Lazy Loading
+
+/* WEBSITE */
+
+Home: /
+About: /about
+Programs: /programs
+Coaches: /coaches
+Achievements: /achievements
+Gallery: /gallery
+News: /news
+Schedule: /schedule
+Store: /store
+Contact: /contact
+
+/* SOCIAL */
+
+Instagram:
+https://instagram.com/
+
+Facebook:
+https://facebook.com/
+
+YouTube:
+https://youtube.com/
+
+/* COPYRIGHT */
+
+© 2026 Young Warriors Cricket Club.
+All Rights Reserved.
+
+/* THANK YOU */
+
+Thank you for visiting Young Warriors Cricket Club.
+Keep Playing. Keep Growing.
