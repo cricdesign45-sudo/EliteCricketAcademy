@@ -14,13 +14,16 @@ import Gallery from '@/pages/Gallery';
 import Achievements from '@/pages/Achievements';
 import News from '@/pages/News';
 import NewsDetail from '@/pages/NewsDetail';
+import Schedule from '@/pages/Schedule';
 import Contact from '@/pages/Contact';
 import Register from '@/pages/Register';
 import Store from '@/pages/Store';
+import Policies from '@/pages/Policies';
 import Login from '@/pages/Login';
 import PlayerLogin from '@/pages/PlayerLogin';
 import PlayerDashboard from '@/pages/PlayerDashboard';
 import NotFound from '@/pages/NotFound';
+import PlayerOfMonthPopup from '@/components/PlayerOfMonthPopup';
 
 // Admin Pages
 import Dashboard from '@/pages/admin/Dashboard';
@@ -49,9 +52,11 @@ import Messages from '@/pages/admin/messages/Messages';
 import Notifications from '@/pages/admin/notifications/Notifications';
 import StoreManagement from '@/pages/admin/store/StoreManagement';
 import OrderManagement from '@/pages/admin/store/OrderManagement';
+import CertificateManagement from '@/pages/admin/certificates/CertificateManagement';
+import PlayerOfMonthAdmin from '@/pages/admin/players/PlayerOfMonth';
+import ActivityLogs from '@/pages/admin/security/ActivityLogs';
 import Reports from '@/pages/admin/reports/Reports';
 import PlayerStats from '@/pages/admin/stats/PlayerStats';
-import AddPlayerStatReport from '@/pages/admin/stats/AddPlayerStatReport';
 import Settings from '@/pages/admin/settings/Settings';
 import WebsiteEditor from '@/pages/admin/website-editor/WebsiteEditor';
 import EditHome from '@/pages/admin/website-editor/EditHome';
@@ -63,6 +68,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-right" richColors />
+      <PlayerOfMonthPopup />
       <Routes>
         {/* Public Routes */}
         <Route element={<PublicLayout />}>
@@ -74,9 +80,11 @@ export default function App() {
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/news" element={<News />} />
           <Route path="/news/:id" element={<NewsDetail />} />
+          <Route path="/schedule" element={<Schedule />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/register" element={<Register />} />
           <Route path="/store" element={<Store />} />
+          <Route path="/policies" element={<Policies />} />
         </Route>
 
         {/* Auth */}
@@ -134,12 +142,16 @@ export default function App() {
           <Route path="store" element={<StoreManagement />} />
           <Route path="store/orders" element={<OrderManagement />} />
 
+          {/* Recognition */}
+          <Route path="certificates" element={<CertificateManagement />} />
+          <Route path="player-of-month" element={<PlayerOfMonthAdmin />} />
+
+          {/* Security */}
+          <Route path="activity-logs" element={<ActivityLogs />} />
+
           {/* Reports */}
           <Route path="reports" element={<Reports />} />
           <Route path="player-stats" element={<PlayerStats />} />
-          <Route path="player-stats/add" element={<AddPlayerStatReport />} />
-          <Route path="player-stats/add/:playerId" element={<AddPlayerStatReport />} />
-          <Route path="player-stats/report/:reportId/edit" element={<AddPlayerStatReport />} />
 
           {/* Settings */}
           <Route path="settings" element={<Settings />} />

@@ -7,22 +7,51 @@ import type {
   Player, Coach, Program, Fee, AttendanceRecord, Holiday,
   NewsPost, Achievement, GalleryItem, Testimonial,
   ContactMessage, WebsiteContent, Notification,
-  PlayerMessage, StoreProduct, StoreOrder, PlayerStatReport,
+  PlayerMessage, StoreProduct, StoreOrder,
+  Certificate, ActivityLog, PlayerOfMonth,
 } from '@/types';
 
-function toPlayerStatReport(row: Record<string, unknown>): PlayerStatReport {
+function toCertificate(row: Record<string, unknown>): Certificate {
   return {
     id: row.id as string,
     playerId: row.player_id as string,
     playerName: row.player_name as string,
-    role: row.role as PlayerStatReport['role'],
-    stats: (row.stats as Record<string, number>) || {},
-    overallRating: row.overall_rating as number | undefined,
-    notes: row.notes as string | undefined,
-    markedBy: (row.marked_by as string) || 'Admin',
-    reportDate: row.report_date as string,
+    title: row.title as string,
+    description: row.description as string | undefined,
+    issuedBy: (row.issued_by as string) || 'Admin',
+    issuedDate: row.issued_date as string,
+    certificateType: row.certificate_type as Certificate['certificateType'],
+    program: row.program as string | undefined,
+    level: row.level as string | undefined,
+    qrCode: row.qr_code as string | undefined,
+    isActive: (row.is_active as boolean) ?? true,
     createdAt: row.created_at as string | undefined,
-    updatedAt: row.updated_at as string | undefined,
+  };
+}
+
+function toActivityLog(row: Record<string, unknown>): ActivityLog {
+  return {
+    id: row.id as string,
+    userId: row.user_id as string,
+    userName: row.user_name as string,
+    userType: row.user_type as ActivityLog['userType'],
+    action: row.action as string,
+    details: row.details as string | undefined,
+    ipAddress: row.ip_address as string | undefined,
+    createdAt: row.created_at as string,
+  };
+}
+
+function toPlayerOfMonth(row: Record<string, unknown>): PlayerOfMonth {
+  return {
+    id: row.id as string,
+    playerId: row.player_id as string,
+    playerName: row.player_name as string,
+    month: row.month as string,
+    year: row.year as number,
+    reason: row.reason as string | undefined,
+    photo: row.photo as string | undefined,
+    createdAt: row.created_at as string | undefined,
   };
 }
 
@@ -877,49 +906,104 @@ export const db = {
     },
   },
 
-  // ─── PLAYER STAT REPORTS ────────────────────────────────────────
-  playerStatReports: {
-    async getAll(): Promise<PlayerStatReport[]> {
-      const { data, error } = await supabase.from('player_stat_reports').select('*').order('report_date', { ascending: false });
+  // ─── CERTIFICATES ─────────────────────────────────────────────
+  certificates: {
+    async getAll(): Promise<Certificate[]> {
+      const { data, error } = await supabase.from('certificates').select('*').order('created_at', { ascending: false });
       if (error) throw error;
-      return (data || []).map(row => toPlayerStatReport(row as Record<string, unknown>));
+      return (data || []).map(row => toCertificate(row as Record<string, unknown>));
     },
-    async getByPlayer(playerId: string): Promise<PlayerStatReport[]> {
-      const { data, error } = await supabase.from('player_stat_reports').select('*').eq('player_id', playerId).order('report_date', { ascending: false });
+    async getByPlayer(playerId: string): Promise<Certificate[]> {
+      const { data, error } = await supabase.from('certificates').select('*').eq('player_id', playerId).eq('is_active', true).order('issued_date', { ascending: false });
       if (error) throw error;
-      return (data || []).map(row => toPlayerStatReport(row as Record<string, unknown>));
+      return (data || []).map(row => toCertificate(row as Record<string, unknown>));
     },
-    async getLatestByPlayer(playerId: string): Promise<PlayerStatReport | null> {
-      const { data } = await supabase.from('player_stat_reports').select('*').eq('player_id', playerId).order('report_date', { ascending: false }).limit(1).single();
-      return data ? toPlayerStatReport(data as Record<string, unknown>) : null;
-    },
-    async add(report: Omit<PlayerStatReport, 'id' | 'createdAt' | 'updatedAt'>): Promise<PlayerStatReport> {
-      const { data, error } = await supabase.from('player_stat_reports').insert({
-        player_id: report.playerId,
-        player_name: report.playerName,
-        role: report.role,
-        stats: report.stats,
-        overall_rating: report.overallRating ?? null,
-        notes: report.notes ?? null,
-        marked_by: report.markedBy,
-        report_date: report.reportDate,
+    async add(cert: Omit<Certificate, 'id' | 'createdAt'>): Promise<Certificate> {
+      const { data, error } = await supabase.from('certificates').insert({
+        player_id: cert.playerId,
+        player_name: cert.playerName,
+        title: cert.title,
+        description: cert.description || null,
+        issued_by: cert.issuedBy,
+        issued_date: cert.issuedDate,
+        certificate_type: cert.certificateType,
+        program: cert.program || null,
+        level: cert.level || null,
+        qr_code: cert.qrCode || null,
+        is_active: cert.isActive,
       }).select().single();
       if (error) throw error;
-      return toPlayerStatReport(data as Record<string, unknown>);
+      return toCertificate(data as Record<string, unknown>);
     },
-    async update(id: string, data: Partial<PlayerStatReport>): Promise<void> {
+    async update(id: string, data: Partial<Certificate>): Promise<void> {
       const mapped: Record<string, unknown> = {};
-      if (data.role !== undefined) mapped.role = data.role;
-      if (data.stats !== undefined) mapped.stats = data.stats;
-      if (data.overallRating !== undefined) mapped.overall_rating = data.overallRating;
-      if (data.notes !== undefined) mapped.notes = data.notes;
-      if (data.reportDate !== undefined) mapped.report_date = data.reportDate;
-      mapped.updated_at = new Date().toISOString();
-      const { error } = await supabase.from('player_stat_reports').update(mapped).eq('id', id);
+      if (data.title !== undefined) mapped.title = data.title;
+      if (data.description !== undefined) mapped.description = data.description;
+      if (data.issuedDate !== undefined) mapped.issued_date = data.issuedDate;
+      if (data.certificateType !== undefined) mapped.certificate_type = data.certificateType;
+      if (data.program !== undefined) mapped.program = data.program;
+      if (data.level !== undefined) mapped.level = data.level;
+      if (data.isActive !== undefined) mapped.is_active = data.isActive;
+      const { error } = await supabase.from('certificates').update(mapped).eq('id', id);
       if (error) throw error;
     },
     async delete(id: string): Promise<void> {
-      const { error } = await supabase.from('player_stat_reports').delete().eq('id', id);
+      const { error } = await supabase.from('certificates').delete().eq('id', id);
+      if (error) throw error;
+    },
+  },
+
+  // ─── ACTIVITY LOGS ────────────────────────────────────────────
+  activityLogs: {
+    async getAll(): Promise<ActivityLog[]> {
+      const { data, error } = await supabase.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(500);
+      if (error) throw error;
+      return (data || []).map(row => toActivityLog(row as Record<string, unknown>));
+    },
+    async add(log: Omit<ActivityLog, 'id' | 'createdAt'>): Promise<void> {
+      await supabase.from('activity_logs').insert({
+        user_id: log.userId,
+        user_name: log.userName,
+        user_type: log.userType,
+        action: log.action,
+        details: log.details || null,
+        ip_address: log.ipAddress || null,
+      });
+    },
+    async clear(): Promise<void> {
+      const { error } = await supabase.from('activity_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      if (error) throw error;
+    },
+  },
+
+  // ─── PLAYER OF MONTH ──────────────────────────────────────────
+  playerOfMonth: {
+    async getAll(): Promise<PlayerOfMonth[]> {
+      const { data, error } = await supabase.from('player_of_month').select('*').order('year', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => toPlayerOfMonth(row as Record<string, unknown>));
+    },
+    async getCurrent(): Promise<PlayerOfMonth | null> {
+      const now = new Date();
+      const month = now.toLocaleString('default', { month: 'long' });
+      const year = now.getFullYear();
+      const { data } = await supabase.from('player_of_month').select('*').eq('month', month).eq('year', year).single();
+      return data ? toPlayerOfMonth(data as Record<string, unknown>) : null;
+    },
+    async set(pom: Omit<PlayerOfMonth, 'id' | 'createdAt'>): Promise<PlayerOfMonth> {
+      const { data, error } = await supabase.from('player_of_month').upsert({
+        player_id: pom.playerId,
+        player_name: pom.playerName,
+        month: pom.month,
+        year: pom.year,
+        reason: pom.reason || null,
+        photo: pom.photo || null,
+      }, { onConflict: 'month,year' }).select().single();
+      if (error) throw error;
+      return toPlayerOfMonth(data as Record<string, unknown>);
+    },
+    async delete(id: string): Promise<void> {
+      const { error } = await supabase.from('player_of_month').delete().eq('id', id);
       if (error) throw error;
     },
   },

@@ -58,10 +58,23 @@ const sidebarSections = [
     ],
   },
   {
+    label: 'Recognition',
+    items: [
+      { label: 'Certificates', icon: Star, path: '/admin/certificates' },
+      { label: 'Player of Month', icon: Trophy, path: '/admin/player-of-month' },
+    ],
+  },
+  {
     label: 'Reports',
     items: [
       { label: 'Reports Overview', icon: FileText, path: '/admin/reports' },
       { label: 'Player Stats', icon: BarChart3, path: '/admin/player-stats' },
+    ],
+  },
+  {
+    label: 'Security',
+    items: [
+      { label: 'Activity Logs', icon: FileText, path: '/admin/activity-logs' },
     ],
   },
   {

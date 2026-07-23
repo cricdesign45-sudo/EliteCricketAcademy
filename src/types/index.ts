@@ -237,18 +237,42 @@ export interface StoreOrder {
   createdAt?: string;
 }
 
-export interface PlayerStatReport {
+export interface Certificate {
   id: string;
   playerId: string;
   playerName: string;
-  role: 'batsman' | 'bowler' | 'wicket_keeper' | 'all_rounder';
-  stats: Record<string, number>;
-  overallRating?: number;
-  notes?: string;
-  markedBy: string;
-  reportDate: string;
+  title: string;
+  description?: string;
+  issuedBy: string;
+  issuedDate: string;
+  certificateType: 'participation' | 'achievement' | 'completion' | 'excellence';
+  program?: string;
+  level?: string;
+  qrCode?: string;
+  isActive: boolean;
   createdAt?: string;
-  updatedAt?: string;
+}
+
+export interface ActivityLog {
+  id: string;
+  userId: string;
+  userName: string;
+  userType: 'admin' | 'player';
+  action: string;
+  details?: string;
+  ipAddress?: string;
+  createdAt: string;
+}
+
+export interface PlayerOfMonth {
+  id: string;
+  playerId: string;
+  playerName: string;
+  month: string;
+  year: number;
+  reason?: string;
+  photo?: string;
+  createdAt?: string;
 }
 
 export interface Notification {
