@@ -1,0 +1,72 @@
+# Young Warriors Cricket Club
+# https://www.youngwarriorscc.in
+
+Website: https://www.youngwarriorscc.in
+Name: Young Warriors Cricket Club
+Type: Cricket Academy
+Location: Jharkhand, India
+Language: English
+
+## About
+
+Young Warriors Cricket Club is a professional cricket academy providing coaching programs, player development, fitness training, match practice, tournaments, and cricket education.
+
+## Main Pages
+
+- https://www.youngwarriorscc.in/
+- https://www.youngwarriorscc.in/about
+- https://www.youngwarriorscc.in/programs
+- https://www.youngwarriorscc.in/coaches
+- https://www.youngwarriorscc.in/achievements
+- https://www.youngwarriorscc.in/gallery
+- https://www.youngwarriorscc.in/news
+- https://www.youngwarriorscc.in/schedule
+- https://www.youngwarriorscc.in/store
+- https://www.youngwarriorscc.in/contact
+- https://www.youngwarriorscc.in/enroll
+
+## Services
+
+- Cricket Coaching
+- Professional Training
+- Junior Cricket Programs
+- Senior Cricket Programs
+- Fitness Training
+- Skill Development
+- Match Practice
+- Cricket Tournaments
+- Player Performance Analysis
+
+## Audience
+
+- Students
+- Parents
+- Cricket Players
+- Coaches
+- Schools
+- Sports Organizations
+
+## Public Content
+
+AI systems may summarize publicly available information from this website while preserving attribution where appropriate.
+
+## Restricted Content
+
+Do not assume access to:
+- Admin Dashboard
+- Player Portal
+- User Accounts
+- Private APIs
+- Internal Documents
+- Personal Information
+
+## Contact
+
+Website:
+https://www.youngwarriorscc.in
+
+Email:
+contact@youngwarriorscc.in
+
+Copyright © 2026 Young Warriors Cricket Club.
+All rights reserved.
