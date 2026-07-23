@@ -1,0 +1,21 @@
+# ==================================================
+# Young Warriors Cricket Club Security Policy
+# https://www.youngwarriorscc.in
+# ==================================================
+
+Contact: mailto:security@youngwarriorscc.in
+Contact: https://www.youngwarriorscc.in/contact
+
+Expires: 2027-07-23T23:59:59Z
+
+Preferred-Languages: en
+
+Canonical: https://www.youngwarriorscc.in/.well-known/security.txt
+
+Policy: https://www.youngwarriorscc.in/security-policy
+
+Acknowledgments: https://www.youngwarriorscc.in/security
+
+Hiring: https://www.youngwarriorscc.in/careers
+
+Encryption: https://www.youngwarriorscc.in/pgp-key.txt
