@@ -1,0 +1,68 @@
+{
+  "name": "Young Warriors Cricket Club",
+  "short_name": "YWCC",
+  "description": "Young Warriors Cricket Club - Professional Cricket Academy offering world-class coaching, tournaments, player development, and cricket programs.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#0B6E2E",
+  "lang": "en-IN",
+  "categories": [
+    "sports",
+    "education",
+    "cricket"
+  ],
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Programs",
+      "url": "/programs",
+      "description": "View all cricket coaching programs"
+    },
+    {
+      "name": "Gallery",
+      "url": "/gallery",
+      "description": "View academy photos"
+    },
+    {
+      "name": "Schedule",
+      "url": "/schedule",
+      "description": "Training schedule"
+    },
+    {
+      "name": "Enroll Now",
+      "url": "/enroll",
+      "description": "Join the academy"
+    }
+  ]
+}
