@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PlayerOfMonthPopup from '@/components/PlayerOfMonthPopup';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, Star, Award, Users, Trophy, Target, Zap } from 'lucide-react';
 import { db } from '@/lib/db';
@@ -48,6 +49,7 @@ export default function Home() {
 
   return (
     <div className="bg-white">
+      <PlayerOfMonthPopup />
       {/* ── Hero ── */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gray-950">
         <div className="absolute inset-0">

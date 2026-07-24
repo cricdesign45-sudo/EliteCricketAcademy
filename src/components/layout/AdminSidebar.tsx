@@ -3,7 +3,8 @@ import {
   LayoutDashboard, Users, CreditCard, CalendarCheck, UtensilsCrossed,
   UserCog, BookOpen, Image, Newspaper, Trophy, MessageSquare,
   Settings, LogOut, Globe, Bell,
-  BarChart3, FileText, Star, X, ChevronLeft, ChevronRight
+  BarChart3, FileText, Star, X, ChevronLeft, ChevronRight,
+  BadgeCheck, TrendingUp, MessageCircle
 } from 'lucide-react';
 import { auth } from '@/lib/storage';
 import { cn } from '@/lib/utils';
@@ -21,6 +22,7 @@ const sidebarSections = [
       { label: 'Players', icon: Users, path: '/admin/players' },
       { label: 'Coaches', icon: UserCog, path: '/admin/coaches' },
       { label: 'Programs', icon: BookOpen, path: '/admin/programs' },
+      { label: 'Verification', icon: BadgeCheck, path: '/admin/verification' },
     ],
   },
   {
@@ -41,6 +43,7 @@ const sidebarSections = [
       { label: 'News & Blog', icon: Newspaper, path: '/admin/news' },
       { label: 'Achievements', icon: Trophy, path: '/admin/achievements' },
       { label: 'Testimonials', icon: Star, path: '/admin/testimonials' },
+      { label: 'Player of Month', icon: Trophy, path: '/admin/player-of-month' },
     ],
   },
   {
@@ -48,6 +51,7 @@ const sidebarSections = [
     items: [
       { label: 'Messages', icon: MessageSquare, path: '/admin/messages' },
       { label: 'Notifications', icon: Bell, path: '/admin/notifications' },
+      { label: 'Chat Mgmt', icon: MessageCircle, path: '/admin/chat-management' },
     ],
   },
   {
@@ -58,10 +62,9 @@ const sidebarSections = [
     ],
   },
   {
-    label: 'Recognition',
+    label: 'Analytics',
     items: [
-      { label: 'Certificates', icon: Star, path: '/admin/certificates' },
-      { label: 'Player of Month', icon: Trophy, path: '/admin/player-of-month' },
+      { label: 'Analytics', icon: TrendingUp, path: '/admin/analytics' },
     ],
   },
   {
@@ -69,12 +72,6 @@ const sidebarSections = [
     items: [
       { label: 'Reports Overview', icon: FileText, path: '/admin/reports' },
       { label: 'Player Stats', icon: BarChart3, path: '/admin/player-stats' },
-    ],
-  },
-  {
-    label: 'Security',
-    items: [
-      { label: 'Activity Logs', icon: FileText, path: '/admin/activity-logs' },
     ],
   },
   {

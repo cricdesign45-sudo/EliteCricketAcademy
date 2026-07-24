@@ -1,101 +1,111 @@
 import { useState, useEffect } from 'react';
-import { Star, X } from 'lucide-react';
+import { X, Star, Trophy, Award } from 'lucide-react';
 import { db } from '@/lib/db';
 import type { PlayerOfMonth } from '@/types';
 
 export default function PlayerOfMonthPopup() {
-  const [pom, setPom] = useState<PlayerOfMonth | null>(null);
-  const [visible, setVisible] = useState(false);
+  const [data, setData] = useState<PlayerOfMonth | null>(null);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    const storageKey = 'ywcc_pom_dismissed';
-    const dismissed = localStorage.getItem(storageKey);
     const now = new Date();
-    const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+    const month = now.toLocaleString('default', { month: 'long' });
+    const year = now.getFullYear();
+    const key = `ywcc_pom_seen_${month}_${year}`;
+    if (localStorage.getItem(key)) return;
 
-    if (dismissed === monthKey) return; // Already dismissed this month
-
-    db.playerOfMonth.getCurrent().then(current => {
-      if (current) {
-        setPom(current);
-        // Show after 2 seconds
-        setTimeout(() => setVisible(true), 2000);
+    db.playerOfMonth.getCurrent().then(pom => {
+      if (pom) {
+        setData(pom);
+        setTimeout(() => setShow(true), 700);
       }
     });
   }, []);
 
   const dismiss = () => {
-    const now = new Date();
-    const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
-    localStorage.setItem('ywcc_pom_dismissed', monthKey);
-    setVisible(false);
+    if (!data) return;
+    const key = `ywcc_pom_seen_${data.month}_${data.year}`;
+    localStorage.setItem(key, '1');
+    setShow(false);
   };
 
-  if (!visible || !pom) return null;
+  if (!show || !data) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={dismiss} />
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden popup-enter">
+        {/* Golden header */}
+        <div className="relative bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 pt-7 pb-5 px-6 text-center">
+          <button
+            onClick={dismiss}
+            className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/20 hover:bg-black/30 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+          >
+            <X size={14} />
+          </button>
+          <div className="inline-flex items-center gap-1.5 bg-black/20 text-amber-950 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-2">
+            <Trophy size={11} /> Player of the Month
+          </div>
+          <p className="text-amber-950/60 text-sm font-semibold">{data.month} {data.year}</p>
+        </div>
 
-      {/* Card */}
-      <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-        {/* Golden top strip */}
-        <div className="h-1.5 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400" />
+        {/* Player card */}
+        <div className="px-6 pb-6">
+          {/* Avatar overlapping header */}
+          <div className="flex justify-center -mt-12 mb-4">
+            {data.photo ? (
+              <img
+                src={data.photo}
+                alt={data.playerName}
+                className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-xl"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border-4 border-white shadow-xl flex items-center justify-center text-white text-4xl font-bold">
+                {data.playerName.charAt(0)}
+              </div>
+            )}
+          </div>
 
-        {/* Close */}
-        <button onClick={dismiss} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors z-10">
-          <X size={20} />
-        </button>
-
-        {/* Sparkle BG */}
-        <div className="absolute inset-0 opacity-5" style={{
-          backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-          backgroundSize: '20px 20px'
-        }} />
-
-        <div className="relative p-7 text-center">
-          {/* Stars decoration */}
-          <div className="flex justify-center gap-1 mb-4">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+          {/* Stars */}
+          <div className="flex justify-center gap-0.5 mb-2">
+            {[1, 2, 3, 4, 5].map(s => (
+              <Star key={s} size={15} className="text-amber-400 fill-amber-400" />
             ))}
           </div>
 
-          {/* Title */}
-          <div className="text-amber-400 text-xs font-bold uppercase tracking-[3px] mb-1">🏆 Recognition</div>
-          <h2 className="text-2xl font-bold mb-1">Player of the Month</h2>
-          <p className="text-gray-400 text-sm mb-6">{pom.month} {pom.year}</p>
-
-          {/* Player */}
-          <div className="flex flex-col items-center mb-5">
-            {pom.photo ? (
-              <img src={pom.photo} alt={pom.playerName}
-                className="w-24 h-24 rounded-full object-cover border-4 border-amber-400 shadow-xl shadow-amber-400/20 mb-3" />
-            ) : (
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-gray-900 text-4xl font-bold border-4 border-amber-400 shadow-xl shadow-amber-400/20 mb-3">
-                {pom.playerName.charAt(0)}
-              </div>
-            )}
-            <h3 className="text-3xl font-bold">{pom.playerName}</h3>
+          <div className="text-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-0.5">{data.playerName}</h2>
+            <div className="flex items-center justify-center gap-1 text-gray-400 text-xs">
+              <Award size={11} />
+              <span>Young Warriors Cricket Club</span>
+            </div>
           </div>
 
-          {pom.reason && (
-            <div className="bg-white/10 rounded-2xl p-4 mb-5 text-sm text-gray-300 leading-relaxed italic">
-              "{pom.reason}"
+          {data.reason && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-5">
+              <p className="text-sm text-gray-700 leading-relaxed text-center italic">
+                "{data.reason}"
+              </p>
             </div>
           )}
 
-          <div className="flex gap-3">
-            <button
-              onClick={dismiss}
-              className="flex-1 bg-amber-400 text-gray-900 font-bold py-3 rounded-xl hover:bg-amber-300 transition-colors text-sm"
-            >
-              Congratulations! 🎉
-            </button>
-          </div>
+          <button
+            onClick={dismiss}
+            className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-xl font-bold transition-colors text-sm"
+          >
+            Continue to Website →
+          </button>
         </div>
       </div>
+
+      <style>{`
+        .popup-enter {
+          animation: popup-scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes popup-scale {
+          from { transform: scale(0.75); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -18,12 +18,16 @@ import Schedule from '@/pages/Schedule';
 import Contact from '@/pages/Contact';
 import Register from '@/pages/Register';
 import Store from '@/pages/Store';
-import Policies from '@/pages/Policies';
 import Login from '@/pages/Login';
 import PlayerLogin from '@/pages/PlayerLogin';
 import PlayerDashboard from '@/pages/PlayerDashboard';
 import NotFound from '@/pages/NotFound';
-import PlayerOfMonthPopup from '@/components/PlayerOfMonthPopup';
+import StoreProductDetail from '@/pages/StoreProductDetail';
+import PlayerChat from '@/pages/PlayerChat';
+import PlayerOfMonthAdmin from '@/pages/admin/players/PlayerOfMonth';
+import Analytics from '@/pages/admin/analytics/Analytics';
+import ChatManagement from '@/pages/admin/chat/ChatManagement';
+import VerificationManagement from '@/pages/admin/players/VerificationManagement';
 
 // Admin Pages
 import Dashboard from '@/pages/admin/Dashboard';
@@ -52,9 +56,6 @@ import Messages from '@/pages/admin/messages/Messages';
 import Notifications from '@/pages/admin/notifications/Notifications';
 import StoreManagement from '@/pages/admin/store/StoreManagement';
 import OrderManagement from '@/pages/admin/store/OrderManagement';
-import CertificateManagement from '@/pages/admin/certificates/CertificateManagement';
-import PlayerOfMonthAdmin from '@/pages/admin/players/PlayerOfMonth';
-import ActivityLogs from '@/pages/admin/security/ActivityLogs';
 import Reports from '@/pages/admin/reports/Reports';
 import PlayerStats from '@/pages/admin/stats/PlayerStats';
 import Settings from '@/pages/admin/settings/Settings';
@@ -68,7 +69,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-right" richColors />
-      <PlayerOfMonthPopup />
       <Routes>
         {/* Public Routes */}
         <Route element={<PublicLayout />}>
@@ -84,13 +84,14 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/register" element={<Register />} />
           <Route path="/store" element={<Store />} />
-          <Route path="/policies" element={<Policies />} />
+          <Route path="/store/:id" element={<StoreProductDetail />} />
         </Route>
 
         {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/player-login" element={<PlayerLogin />} />
         <Route path="/player" element={<PlayerDashboard />} />
+        <Route path="/player/chat" element={<PlayerChat />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -142,13 +143,6 @@ export default function App() {
           <Route path="store" element={<StoreManagement />} />
           <Route path="store/orders" element={<OrderManagement />} />
 
-          {/* Recognition */}
-          <Route path="certificates" element={<CertificateManagement />} />
-          <Route path="player-of-month" element={<PlayerOfMonthAdmin />} />
-
-          {/* Security */}
-          <Route path="activity-logs" element={<ActivityLogs />} />
-
           {/* Reports */}
           <Route path="reports" element={<Reports />} />
           <Route path="player-stats" element={<PlayerStats />} />
@@ -162,6 +156,12 @@ export default function App() {
           <Route path="website-editor/about" element={<EditAbout />} />
           <Route path="website-editor/contact" element={<EditContact />} />
           <Route path="website-editor/banners" element={<EditBanners />} />
+
+          {/* New Features */}
+          <Route path="player-of-month" element={<PlayerOfMonthAdmin />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="chat-management" element={<ChatManagement />} />
+          <Route path="verification" element={<VerificationManagement />} />
         </Route>
 
         {/* Catch-all */}

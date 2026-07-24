@@ -78,23 +78,6 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold text-base mb-4">Legal & Policies</h3>
-            <ul className="space-y-2">
-              {[
-                ['Terms & Conditions', '/policies'],
-                ['Privacy Policy', '/policies'],
-                ['Refund Policy', '/policies'],
-                ['Academy Rules', '/policies'],
-                ['Player Code of Conduct', '/policies'],
-                ['Child Safety Policy', '/policies'],
-                ['FAQ', '/policies'],
-              ].map(([label, path]) => (
-                <li key={label}><Link to={path} className="text-sm hover:text-amber-400 transition-colors">{label}</Link></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
             <h3 className="text-white font-semibold text-base mb-4">Contact Us</h3>
             <ul className="space-y-3">
               <li className="flex gap-3"><MapPin size={16} className="mt-0.5 text-amber-400 flex-shrink-0" /><span className="text-sm">{contact.address}</span></li>
@@ -106,11 +89,9 @@ export default function Footer() {
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
           <p>© {new Date().getFullYear()} Young Warriors Cricket Club. All rights reserved.</p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link to="/policies" className="hover:text-amber-400 transition-colors">Privacy Policy</Link>
-            <Link to="/policies" className="hover:text-amber-400 transition-colors">Terms of Service</Link>
-            <Link to="/policies" className="hover:text-amber-400 transition-colors">Policies</Link>
-            <Link to="/store" className="hover:text-amber-400 transition-colors">Store</Link>
+          <div className="flex gap-4">
+            <Link to="/contact" className="hover:text-amber-400 transition-colors">Privacy Policy</Link>
+            <Link to="/contact" className="hover:text-amber-400 transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>

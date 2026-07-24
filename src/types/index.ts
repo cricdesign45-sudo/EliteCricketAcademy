@@ -237,31 +237,13 @@ export interface StoreOrder {
   createdAt?: string;
 }
 
-export interface Certificate {
+export interface Notification {
   id: string;
-  playerId: string;
-  playerName: string;
   title: string;
-  description?: string;
-  issuedBy: string;
-  issuedDate: string;
-  certificateType: 'participation' | 'achievement' | 'completion' | 'excellence';
-  program?: string;
-  level?: string;
-  qrCode?: string;
-  isActive: boolean;
-  createdAt?: string;
-}
-
-export interface ActivityLog {
-  id: string;
-  userId: string;
-  userName: string;
-  userType: 'admin' | 'player';
-  action: string;
-  details?: string;
-  ipAddress?: string;
-  createdAt: string;
+  message: string;
+  type: 'info' | 'warning' | 'success' | 'error';
+  date: string;
+  isRead: boolean;
 }
 
 export interface PlayerOfMonth {
@@ -275,11 +257,21 @@ export interface PlayerOfMonth {
   createdAt?: string;
 }
 
-export interface Notification {
+export interface ProductReview {
   id: string;
-  title: string;
+  productId: string;
+  playerId: string;
+  playerName: string;
+  rating: number;
+  comment?: string;
+  createdAt?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  room: string;
   message: string;
-  type: 'info' | 'warning' | 'success' | 'error';
-  date: string;
-  isRead: boolean;
+  createdAt: string;
 }

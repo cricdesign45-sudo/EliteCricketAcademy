@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { getCart, addToCart as addToLocalCart, removeFromCart as removeFromLocalCart, updateCartQty, clearCart } from '@/lib/cart';
+import type { CartItem } from '@/lib/cart';
 import { ShoppingCart, Package, Star, Tag, X, Plus, Minus, Trash2, ShoppingBag, Phone, User, CheckCircle } from 'lucide-react';
 import { db } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
@@ -7,16 +10,11 @@ import type { StoreProduct, StoreOrder } from '@/types';
 
 const CATEGORIES = ['All', 'Kit', 'Bat', 'Ball', 'Clothing', 'Accessories', 'Footwear', 'Equipment', 'Other'];
 
-interface CartItem {
-  product: StoreProduct;
-  quantity: number;
-}
-
 export default function Store() {
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [catFilter, setCatFilter] = useState('All');
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => getCart());
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [orderDone, setOrderDone] = useState<string | null>(null);
@@ -43,6 +41,12 @@ export default function Store() {
     }
   }, []);
 
+  useEffect(() => {
+    const onUpdate = () => setCart(getCart());
+    window.addEventListener('ywcc-cart-updated', onUpdate);
+    return () => window.removeEventListener('ywcc-cart-updated', onUpdate);
+  }, []);
+
   const filtered = products.filter(p =>
     catFilter === 'All' || p.category === catFilter
   );
@@ -54,18 +58,13 @@ export default function Store() {
   const cartTotal = cart.reduce((s, i) => s + i.product.price * i.quantity, 0);
 
   const addToCart = (product: StoreProduct) => {
-    setCart(prev => {
-      const existing = prev.find(i => i.product.id === product.id);
-      if (existing) return prev.map(i => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
-      return [...prev, { product, quantity: 1 }];
-    });
+    addToLocalCart(product);
+    setCart(getCart());
     toast.success(`${product.name} added to cart`);
   };
 
-  const removeFromCart = (id: string) => setCart(prev => prev.filter(i => i.product.id !== id));
-  const updateQty = (id: string, delta: number) => {
-    setCart(prev => prev.map(i => i.product.id === id ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i).filter(i => i.quantity > 0));
-  };
+  const removeFromCart = (id: string) => { removeFromLocalCart(id); setCart(getCart()); };
+  const updateQty = (id: string, delta: number) => { updateCartQty(id, delta); setCart(getCart()); };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +92,7 @@ export default function Store() {
     };
     await db.storeOrders.add(order);
     setOrderDone(orderNumber);
+    clearCart();
     setCart([]);
     setShowCheckout(false);
     setPlacing(false);
@@ -339,10 +339,13 @@ function ProductCard({ product, onAdd }: { product: StoreProduct; onAdd: (p: Sto
           <button
             onClick={() => onAdd(product)}
             disabled={product.stock === 0}
-            className="flex items-center gap-1.5 bg-gray-900 text-white text-xs px-4 py-2 rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-1 bg-gray-900 text-white text-xs px-3 py-2 rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <ShoppingCart size={13} /> Add
           </button>
+          <Link to={`/store/${product.id}`} className="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-2 rounded-xl font-semibold transition-colors">
+            View
+          </Link>
         </div>
       </div>
     </div>
